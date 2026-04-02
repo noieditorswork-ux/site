@@ -215,18 +215,33 @@
     </div>
   </div>
 
-  <!-- Filter Tabs -->
+  <!-- Filter Tabs: Short Form & Long Form only -->
   <div class="flex gap-3 flex-wrap mb-12" data-aos="fade-up">
-    <button onclick="filterWork('all',this)" class="filter-btn active-filter px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all" style="background:#FF6B1A;color:#000">All</button>
-    <button onclick="filterWork('short',this)" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all border" style="border-color:rgba(255,107,26,0.3);color:#999">Short Form</button>
-    <button onclick="filterWork('cinematic',this)" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all border" style="border-color:rgba(255,107,26,0.3);color:#999">Cinematic</button>
-    <button onclick="filterWork('gaming',this)" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all border" style="border-color:rgba(255,107,26,0.3);color:#999">Gaming</button>
-    <button onclick="filterWork('motion',this)" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all border" style="border-color:rgba(255,107,26,0.3);color:#999">Motion</button>
+    <button onclick="filterWork('short',this)" id="btn-short" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all" style="background:#FF6B1A;color:#000">Short Form</button>
+    <button onclick="filterWork('long',this)" id="btn-long" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all border" style="border-color:rgba(255,107,26,0.3);color:#999">Long Form</button>
   </div>
 
-  <!-- Video Grid -->
-  <div id="work-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- Video cards loaded from localStorage or default -->
+  <!-- Short Form: 9:16 vertical carousel with left/right nav -->
+  <div id="short-form-section">
+    <div class="relative flex items-center justify-center gap-4">
+      <!-- Left Button -->
+      <button id="btn-prev" onclick="slideWork(-1)" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
+        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+      </button>
+      <!-- Visible cards -->
+      <div id="short-carousel" class="flex gap-4 overflow-hidden" style="max-width:900px;width:100%"></div>
+      <!-- Right Button -->
+      <button id="btn-next" onclick="slideWork(1)" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
+        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <!-- Dots -->
+    <div id="short-dots" class="flex justify-center gap-2 mt-6"></div>
+  </div>
+
+  <!-- Long Form: normal grid -->
+  <div id="long-form-section" class="hidden">
+    <div id="work-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
   </div>
 </section>
 
@@ -407,13 +422,13 @@
       <!-- Contact Info -->
       <div data-aos="fade-right">
         <div class="space-y-6">
-          <a href="mailto:noieditorswork@gmail.com" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
+          <a href="/cdn-cgi/l/email-protection#c0aeafa9a5a4a9b4afb2b3b7afb2ab80a7ada1a9aceea3afad" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-orange-accent transition-all" style="background:rgba(255,107,26,0.1)">
               <i data-lucide="mail" class="w-5 h-5" style="color:#FF6B1A"></i>
             </div>
             <div>
               <div class="text-xs text-gray-500 font-syne uppercase tracking-wider">Email</div>
-              <div class="font-syne font-semibold text-white mt-0.5">noieditorswork@gmail.com</div>
+              <div class="font-syne font-semibold text-white mt-0.5"><span class="__cf_email__" data-cfemail="4b2524222e2f223f2439383c2439200b2c262a222765282426">[email&#160;protected]</span></div>
             </div>
           </a>
           <a href="https://wa.me/918849438871" target="_blank" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
@@ -500,7 +515,7 @@
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ─── Cursor
 const cursor = document.getElementById('cursor');
 const ring = document.getElementById('cursor-ring');
@@ -523,12 +538,14 @@ lucide.createIcons();
 
 // ─── Default Data
 const defaultVideos = [
-  { id:'v1', title:'Tech Review | Cinematic Edit', category:'cinematic', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
-  { id:'v2', title:'Gaming Highlights Reel', category:'gaming', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v1', title:'Tech Review | Cinematic Edit', category:'long', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v2', title:'Gaming Highlights Reel', category:'long', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
   { id:'v3', title:'Short Form · Instagram Reel', category:'short', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
-  { id:'v4', title:'Motion Graphics Promo', category:'motion', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
-  { id:'v5', title:'YouTube Long-Form Edit', category:'cinematic', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v4', title:'Motion Graphics Promo', category:'long', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v5', title:'YouTube Long-Form Edit', category:'long', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
   { id:'v6', title:'Brand Ad · Short Form', category:'short', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v7', title:'Reel Edit · Trending Audio', category:'short', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v8', title:'YouTube Documentary Edit', category:'long', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
 ];
 
 const defaultTestimonials = [
@@ -553,31 +570,112 @@ function getTestimonials() {
   try { return JSON.parse(localStorage.getItem('noi_testimonials')) || defaultTestimonials; } catch{ return defaultTestimonials; }
 }
 
-// ─── Render Work Grid
-let activeFilter = 'all';
-function renderWork(filter='all') {
-  activeFilter = filter;
-  const videos = getVideos().filter(v => filter==='all' || v.category===filter);
+// ─── Work Section: Short Form & Long Form only
+let shortIndex = 0;
+
+function getShortVideos() {
+  return getVideos().filter(v => v.category === 'short');
+}
+function getLongVideos() {
+  return getVideos().filter(v => v.category !== 'short');
+}
+
+function getVisibleCount() {
+  if(window.innerWidth >= 768) return 3;
+  return 1;
+}
+
+function renderShortCarousel() {
+  const videos = getShortVideos();
+  const count = getVisibleCount();
+  const carousel = document.getElementById('short-carousel');
+  const dots = document.getElementById('short-dots');
+  if(!carousel) return;
+
+  // Clamp index
+  const maxIndex = Math.max(0, videos.length - count);
+  if(shortIndex > maxIndex) shortIndex = maxIndex;
+  if(shortIndex < 0) shortIndex = 0;
+
+  const visible = videos.slice(shortIndex, shortIndex + count);
+  carousel.innerHTML = visible.map(v=>`
+    <div class="video-thumb card-hover cursor-pointer shrink-0 flex-1" onclick="openModal('${v.yt}')" style="min-width:0">
+      <div style="position:relative;padding-bottom:177.78%;overflow:hidden;border-radius:12px;background:#111">
+        <img src="${v.thumb}" alt="${v.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s ease"/>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;background:rgba(0,0,0,0.4);opacity:0;transition:.3s;color:#FF6B1A" class="play-overlay">▶</div>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(transparent,rgba(0,0,0,0.85))">
+          <div class="tag px-2 py-0.5 rounded text-xs font-syne inline-block mb-1">Short Form</div>
+          <div class="font-syne font-semibold text-white text-sm">${v.title}</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // Hover overlay fix
+  carousel.querySelectorAll('.video-thumb').forEach(card => {
+    card.addEventListener('mouseenter', () => { card.querySelector('.play-overlay').style.opacity='1'; card.querySelector('img').style.transform='scale(1.05)'; });
+    card.addEventListener('mouseleave', () => { card.querySelector('.play-overlay').style.opacity='0'; card.querySelector('img').style.transform='scale(1)'; });
+  });
+
+  // Dots
+  const totalDots = maxIndex + 1;
+  dots.innerHTML = Array.from({length: totalDots}, (_,i)=>`
+    <button onclick="shortIndex=${i};renderShortCarousel()" style="width:8px;height:8px;border-radius:50%;background:${i===shortIndex?'#FF6B1A':'rgba(255,107,26,0.25)'};border:none;cursor:pointer;transition:background .3s;padding:0"></button>
+  `).join('');
+
+  // Arrows
+  const prev = document.getElementById('btn-prev');
+  const next = document.getElementById('btn-next');
+  if(prev) prev.style.opacity = shortIndex === 0 ? '0.3' : '1';
+  if(next) next.style.opacity = shortIndex >= maxIndex ? '0.3' : '1';
+}
+
+function slideWork(dir) {
+  const videos = getShortVideos();
+  const count = getVisibleCount();
+  const maxIndex = Math.max(0, videos.length - count);
+  shortIndex = Math.min(maxIndex, Math.max(0, shortIndex + dir));
+  renderShortCarousel();
+}
+
+function renderLongGrid() {
+  const videos = getLongVideos();
   const grid = document.getElementById('work-grid');
-  grid.innerHTML = videos.map(v=>`
+  if(!grid) return;
+  grid.innerHTML = videos.length ? videos.map(v=>`
     <div class="video-thumb card-hover cursor-pointer" onclick="openModal('${v.yt}')" data-aos="fade-up">
       <img src="${v.thumb}" alt="${v.title}" class="w-full aspect-video object-cover"/>
       <div class="absolute bottom-0 left-0 right-0 p-4" style="background:linear-gradient(transparent,rgba(0,0,0,0.8))">
-        <div class="tag px-2 py-0.5 rounded text-xs font-syne inline-block mb-1">${v.category}</div>
+        <div class="tag px-2 py-0.5 rounded text-xs font-syne inline-block mb-1">Long Form</div>
         <div class="font-syne font-semibold text-white text-sm">${v.title}</div>
       </div>
-    </div>`).join('');
+    </div>`).join('') : '<p class="text-gray-600 font-syne col-span-3 text-center py-16">No long form videos yet.</p>';
   lucide.createIcons();
   AOS.refresh();
 }
 
 function filterWork(f, btn) {
   document.querySelectorAll('.filter-btn').forEach(b=>{
-    b.style.background=''; b.style.color='#999';
+    b.style.background=''; b.style.color='#999'; b.style.border='1px solid rgba(255,107,26,0.3)';
   });
-  if(btn){ btn.style.background='#FF6B1A'; btn.style.color='#000'; }
-  renderWork(f);
+  if(btn){ btn.style.background='#FF6B1A'; btn.style.color='#000'; btn.style.border='none'; }
+
+  const shortSec = document.getElementById('short-form-section');
+  const longSec = document.getElementById('long-form-section');
+
+  if(f === 'short') {
+    shortSec.classList.remove('hidden');
+    longSec.classList.add('hidden');
+    shortIndex = 0;
+    renderShortCarousel();
+  } else {
+    shortSec.classList.add('hidden');
+    longSec.classList.remove('hidden');
+    renderLongGrid();
+  }
 }
+
+// Alias for legacy renderWork calls
+function renderWork(filter='short') { filterWork(filter, document.getElementById('btn-'+filter)); }
 
 // ─── Modal
 function openModal(ytId) {
@@ -653,11 +751,19 @@ function submitForm() {
   document.getElementById('cf-msg').value='';
 }
 
-// ─── Init
-renderWork();
-renderTestimonials();
-renderFAQ();
-lucide.createIcons();
+// ─── Init on Load
+window.addEventListener('DOMContentLoaded', () => {
+  renderShortCarousel();
+  renderTestimonials();
+  renderFAQ();
+  lucide.createIcons();
+});
+
+window.addEventListener('resize', () => {
+  if(document.getElementById('short-form-section') && !document.getElementById('short-form-section').classList.contains('hidden')) {
+    renderShortCarousel();
+  }
+});
 </script>
 </body>
 </html>
