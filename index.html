@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NOI EDITORS — Raw to Royalty</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"/>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          orange: { accent: '#FF6B1A', light: '#FF8C42', dark: '#CC4E00' },
+          dark: { bg: '#080808', surface: '#111111', card: '#161616', border: '#1f1f1f' }
+        },
+        fontFamily: {
+          bebas: ['Bebas Neue', 'cursive'],
+          syne: ['Syne', 'sans-serif'],
+          dm: ['DM Sans', 'sans-serif'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  * { box-sizing: border-box; }
+  body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; overflow-x: hidden; cursor: none; }
+
+  /* Cursor */
+  #cursor { position: fixed; width: 10px; height: 10px; background: #FF6B1A; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%,-50%); transition: width .2s, height .2s; }
+  #cursor-ring { position: fixed; width: 36px; height: 36px; border: 1.5px solid #FF6B1A; border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%,-50%); transition: all .12s ease; opacity: .5; }
+  body:has(a:hover) #cursor, body:has(button:hover) #cursor { width: 20px; height: 20px; }
+
+  /* Noise texture overlay */
+  body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:9997; opacity:.4; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #111; }
+  ::-webkit-scrollbar-thumb { background: #FF6B1A; border-radius: 99px; }
+
+  /* Marquee */
+  .marquee-track { display:flex; width:max-content; animation: marquee 25s linear infinite; }
+  .marquee-track:hover { animation-play-state: paused; }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* Glow */
+  .glow-orange { box-shadow: 0 0 40px rgba(255,107,26,0.25); }
+  .text-glow { text-shadow: 0 0 60px rgba(255,107,26,0.4); }
+
+  /* Nav blur */
+  .nav-blur { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+
+  /* Hero gradient */
+  .hero-gradient { background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,107,26,0.12) 0%, transparent 70%); }
+
+  /* Card hover */
+  .card-hover { transition: transform .3s ease, box-shadow .3s ease; }
+  .card-hover:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(255,107,26,0.15); }
+
+  /* Video thumb */
+  .video-thumb { position:relative; overflow:hidden; border-radius:12px; }
+  .video-thumb::after { content:'▶'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2rem; background:rgba(0,0,0,0.4); opacity:0; transition:.3s; color:#FF6B1A; }
+  .video-thumb:hover::after { opacity:1; }
+  .video-thumb img { transition:transform .4s ease; }
+  .video-thumb:hover img { transform:scale(1.05); }
+
+  /* Accordion */
+  .faq-content { max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .faq-content.open { max-height:200px; }
+
+  /* Section title */
+  .section-title { font-family:'Bebas Neue',cursive; letter-spacing:0.02em; }
+
+  /* Orange line */
+  .orange-line { width:60px; height:3px; background:linear-gradient(90deg,#FF6B1A,transparent); border-radius:99px; }
+
+  /* Floating badge */
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .float { animation:float 3s ease-in-out infinite; }
+
+  /* Stripe pattern */
+  .stripe-bg { background-image: repeating-linear-gradient(45deg, rgba(255,107,26,0.03) 0px, rgba(255,107,26,0.03) 1px, transparent 1px, transparent 12px); }
+
+  /* Pricing card popular */
+  .popular-card { border-color: #FF6B1A !important; background: linear-gradient(135deg, #161616 0%, #1a1008 100%) !important; }
+
+  /* Mobile menu */
+  #mobile-menu { transition: all .3s ease; }
+
+  /* Tag pill */
+  .tag { background:rgba(255,107,26,0.1); border:1px solid rgba(255,107,26,0.2); color:#FF6B1A; }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- ─── NAV ─── -->
+<nav class="fixed top-0 left-0 right-0 z-50 nav-blur border-b border-dark-border" style="background:rgba(8,8,8,0.85)">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="#" class="font-bebas text-2xl tracking-widest text-white">NOI <span class="text-orange-accent">EDITORS</span></a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="#work" class="text-sm font-syne text-gray-400 hover:text-white transition-colors">Work</a>
+      <a href="#services" class="text-sm font-syne text-gray-400 hover:text-white transition-colors">Services</a>
+      <a href="#pricing" class="text-sm font-syne text-gray-400 hover:text-white transition-colors">Pricing</a>
+      <a href="#contact" class="text-sm font-syne text-gray-400 hover:text-white transition-colors">Contact</a>
+      <a href="login.html" class="text-sm font-syne text-gray-400 hover:text-white transition-colors">Client Login</a>
+    </div>
+    <a href="#contact" class="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-syne font-semibold transition-all" style="background:#FF6B1A;color:#000">
+      Get In Touch
+    </a>
+    <button id="menu-btn" class="md:hidden text-white">
+      <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
+  </div>
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="md:hidden hidden px-6 pb-6 flex flex-col gap-4 border-t border-dark-border">
+    <a href="#work" class="text-sm font-syne text-gray-400 hover:text-white py-2">Work</a>
+    <a href="#services" class="text-sm font-syne text-gray-400 hover:text-white py-2">Services</a>
+    <a href="#pricing" class="text-sm font-syne text-gray-400 hover:text-white py-2">Pricing</a>
+    <a href="#contact" class="text-sm font-syne text-gray-400 hover:text-white py-2">Contact</a>
+    <a href="login.html" class="text-sm font-syne text-gray-400 hover:text-white py-2">Client Login</a>
+    <a href="#contact" class="inline-flex justify-center py-3 rounded-full text-sm font-syne font-semibold" style="background:#FF6B1A;color:#000">Get In Touch</a>
+  </div>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero-gradient min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 relative overflow-hidden">
+  <!-- Decorative circles -->
+  <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-5" style="background:radial-gradient(circle,#FF6B1A,transparent);filter:blur(60px)"></div>
+  <div class="absolute bottom-1/3 right-1/4 w-64 h-64 rounded-full opacity-5" style="background:radial-gradient(circle,#FF6B1A,transparent);filter:blur(40px)"></div>
+
+  <div class="float inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 tag text-xs font-syne font-semibold tracking-wider uppercase" data-aos="fade-down">
+    <span class="w-2 h-2 rounded-full bg-orange-accent animate-pulse inline-block"></span>
+    Available for New Projects
+  </div>
+
+  <h1 class="section-title text-glow leading-none mb-6" style="font-size:clamp(4rem,14vw,11rem)" data-aos="fade-up">
+    RAW TO<br/><span class="text-orange-accent">ROYALTY</span>
+  </h1>
+
+  <p class="max-w-xl mx-auto text-gray-400 text-lg font-dm mb-10 leading-relaxed" data-aos="fade-up" data-aos-delay="100">
+    Your imagination becomes visual reality.<br/>
+    <span class="text-white">NOI EDITORS</span> crafts premium video editing, motion graphics & visual storytelling for creators and brands.
+  </p>
+
+  <div class="flex flex-wrap gap-4 justify-center" data-aos="fade-up" data-aos-delay="200">
+    <a href="#work" class="px-8 py-4 rounded-full font-syne font-semibold text-black transition-all hover:scale-105 glow-orange" style="background:#FF6B1A">
+      See Our Work ↓
+    </a>
+    <a href="#contact" class="px-8 py-4 rounded-full font-syne font-semibold text-white border transition-all hover:border-orange-accent hover:text-orange-accent" style="border-color:rgba(255,107,26,0.3)">
+      Start a Project
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div class="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl w-full" data-aos="fade-up" data-aos-delay="300">
+    <div class="text-center">
+      <div class="font-bebas text-5xl text-orange-accent">200+</div>
+      <div class="text-xs text-gray-500 font-syne uppercase tracking-wider mt-1">Videos Edited</div>
+    </div>
+    <div class="text-center">
+      <div class="font-bebas text-5xl text-orange-accent">50+</div>
+      <div class="text-xs text-gray-500 font-syne uppercase tracking-wider mt-1">Happy Clients</div>
+    </div>
+    <div class="text-center">
+      <div class="font-bebas text-5xl text-orange-accent">3+</div>
+      <div class="text-xs text-gray-500 font-syne uppercase tracking-wider mt-1">Years Exp</div>
+    </div>
+    <div class="text-center">
+      <div class="font-bebas text-5xl text-orange-accent">24H</div>
+      <div class="text-xs text-gray-500 font-syne uppercase tracking-wider mt-1">Fast Delivery</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MARQUEE ─── -->
+<div class="py-5 border-y overflow-hidden" style="border-color:rgba(255,107,26,0.15);background:rgba(255,107,26,0.03)">
+  <div class="marquee-track">
+    <span class="inline-flex items-center gap-6 pr-8 font-bebas text-xl tracking-widest text-gray-600" style="white-space:nowrap">
+      <span>VIDEO EDITING</span><span class="text-orange-accent">✦</span>
+      <span>MOTION GRAPHICS</span><span class="text-orange-accent">✦</span>
+      <span>SHORT FORM</span><span class="text-orange-accent">✦</span>
+      <span>LONG FORM</span><span class="text-orange-accent">✦</span>
+      <span>CINEMATIC</span><span class="text-orange-accent">✦</span>
+      <span>GAMING</span><span class="text-orange-accent">✦</span>
+      <span>PROMOTIONAL ADS</span><span class="text-orange-accent">✦</span>
+      <span>DOCUMENTARY</span><span class="text-orange-accent">✦</span>
+      <span>VIDEO EDITING</span><span class="text-orange-accent">✦</span>
+      <span>MOTION GRAPHICS</span><span class="text-orange-accent">✦</span>
+      <span>SHORT FORM</span><span class="text-orange-accent">✦</span>
+      <span>LONG FORM</span><span class="text-orange-accent">✦</span>
+      <span>CINEMATIC</span><span class="text-orange-accent">✦</span>
+      <span>GAMING</span><span class="text-orange-accent">✦</span>
+      <span>PROMOTIONAL ADS</span><span class="text-orange-accent">✦</span>
+      <span>DOCUMENTARY</span><span class="text-orange-accent">✦</span>
+    </span>
+  </div>
+</div>
+
+<!-- ─── WORK / PORTFOLIO ─── -->
+<section id="work" class="py-32 px-6 max-w-7xl mx-auto">
+  <div class="mb-16" data-aos="fade-up">
+    <div class="orange-line mb-4"></div>
+    <div class="flex items-end justify-between flex-wrap gap-4">
+      <h2 class="section-title text-white" style="font-size:clamp(2.5rem,6vw,5rem)">OUR WORK</h2>
+      <span class="text-gray-500 font-syne text-sm">Short Form ✦ Reels ✦ YouTube</span>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="flex gap-3 flex-wrap mb-12" data-aos="fade-up">
+    <button onclick="filterWork('all',this)" class="filter-btn active-filter px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all" style="background:#FF6B1A;color:#000">All</button>
+    <button onclick="filterWork('short',this)" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all border" style="border-color:rgba(255,107,26,0.3);color:#999">Short Form</button>
+    <button onclick="filterWork('cinematic',this)" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all border" style="border-color:rgba(255,107,26,0.3);color:#999">Cinematic</button>
+    <button onclick="filterWork('gaming',this)" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all border" style="border-color:rgba(255,107,26,0.3);color:#999">Gaming</button>
+    <button onclick="filterWork('motion',this)" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all border" style="border-color:rgba(255,107,26,0.3);color:#999">Motion</button>
+  </div>
+
+  <!-- Video Grid -->
+  <div id="work-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Video cards loaded from localStorage or default -->
+  </div>
+</section>
+
+<!-- ─── SERVICES ─── -->
+<section id="services" class="py-32 px-6 stripe-bg" style="background-color:#080808">
+  <div class="max-w-7xl mx-auto">
+    <div class="mb-16 text-center" data-aos="fade-up">
+      <div class="orange-line mx-auto mb-4"></div>
+      <h2 class="section-title text-white" style="font-size:clamp(2.5rem,6vw,5rem)">WHAT NOI DO</h2>
+      <p class="text-gray-500 mt-4 max-w-xl mx-auto font-dm">Premium video editing, motion graphics, and visual storytelling for brands, creators, and businesses.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="card-hover p-8 rounded-2xl border" style="background:#111111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="0">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style="background:rgba(255,107,26,0.1)">
+          <i data-lucide="zap" class="w-5 h-5" style="color:#FF6B1A"></i>
+        </div>
+        <h3 class="font-syne font-bold text-white text-lg mb-3">Short Form</h3>
+        <p class="text-gray-500 text-sm font-dm leading-relaxed">Scroll-stopping Reels, Shorts & TikToks with trend-based cuts and high-retention hooks.</p>
+        <div class="mt-5 pt-5 border-t" style="border-color:#1f1f1f">
+          <span class="tag px-3 py-1 rounded-full text-xs font-syne">Reels · Shorts · TikTok</span>
+        </div>
+      </div>
+      <div class="card-hover p-8 rounded-2xl border" style="background:#111111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="80">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style="background:rgba(255,107,26,0.1)">
+          <i data-lucide="film" class="w-5 h-5" style="color:#FF6B1A"></i>
+        </div>
+        <h3 class="font-syne font-bold text-white text-lg mb-3">Long Form</h3>
+        <p class="text-gray-500 text-sm font-dm leading-relaxed">Story-driven, high-retention YouTube videos with clean pacing and professional flow.</p>
+        <div class="mt-5 pt-5 border-t" style="border-color:#1f1f1f">
+          <span class="tag px-3 py-1 rounded-full text-xs font-syne">YouTube · Documentary</span>
+        </div>
+      </div>
+      <div class="card-hover p-8 rounded-2xl border" style="background:#111111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="160">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style="background:rgba(255,107,26,0.1)">
+          <i data-lucide="sparkles" class="w-5 h-5" style="color:#FF6B1A"></i>
+        </div>
+        <h3 class="font-syne font-bold text-white text-lg mb-3">Motion Graphics</h3>
+        <p class="text-gray-500 text-sm font-dm leading-relaxed">Dynamic animations, lower thirds, intros/outros, and visual effects that elevate your brand.</p>
+        <div class="mt-5 pt-5 border-t" style="border-color:#1f1f1f">
+          <span class="tag px-3 py-1 rounded-full text-xs font-syne">VFX · Animation · Branding</span>
+        </div>
+      </div>
+      <div class="card-hover p-8 rounded-2xl border" style="background:#111111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="240">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style="background:rgba(255,107,26,0.1)">
+          <i data-lucide="megaphone" class="w-5 h-5" style="color:#FF6B1A"></i>
+        </div>
+        <h3 class="font-syne font-bold text-white text-lg mb-3">Promo Ads</h3>
+        <p class="text-gray-500 text-sm font-dm leading-relaxed">High-converting promotional videos for product launches, brands, and social media campaigns.</p>
+        <div class="mt-5 pt-5 border-t" style="border-color:#1f1f1f">
+          <span class="tag px-3 py-1 rounded-full text-xs font-syne">Ads · Promos · Brand</span>
+        </div>
+      </div>
+    </div>
+    <!-- Extra services row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
+      <div class="p-5 rounded-xl border flex items-center gap-3" style="background:#111;border-color:#1f1f1f" data-aos="fade-up">
+        <i data-lucide="gamepad-2" class="w-5 h-5 shrink-0" style="color:#FF6B1A"></i>
+        <span class="font-syne font-semibold text-sm">Gaming Videos</span>
+      </div>
+      <div class="p-5 rounded-xl border flex items-center gap-3" style="background:#111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="80">
+        <i data-lucide="clapperboard" class="w-5 h-5 shrink-0" style="color:#FF6B1A"></i>
+        <span class="font-syne font-semibold text-sm">Cinematic Edits</span>
+      </div>
+      <div class="p-5 rounded-xl border flex items-center gap-3" style="background:#111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="160">
+        <i data-lucide="clock" class="w-5 h-5 shrink-0" style="color:#FF6B1A"></i>
+        <span class="font-syne font-semibold text-sm">24H Fast Delivery</span>
+      </div>
+      <div class="p-5 rounded-xl border flex items-center gap-3" style="background:#111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="240">
+        <i data-lucide="refresh-cw" class="w-5 h-5 shrink-0" style="color:#FF6B1A"></i>
+        <span class="font-syne font-semibold text-sm">Unlimited Revisions</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TESTIMONIALS ─── -->
+<section id="testimonials" class="py-32 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="mb-16 text-center" data-aos="fade-up">
+      <div class="orange-line mx-auto mb-4"></div>
+      <h2 class="section-title text-white" style="font-size:clamp(2.5rem,6vw,5rem)">CLIENT FEEDBACK</h2>
+    </div>
+    <div id="testimonials-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Loaded dynamically -->
+    </div>
+  </div>
+</section>
+
+<!-- ─── PRICING ─── -->
+<section id="pricing" class="py-32 px-6 stripe-bg" style="background-color:#080808">
+  <div class="max-w-5xl mx-auto">
+    <div class="mb-16 text-center" data-aos="fade-up">
+      <div class="orange-line mx-auto mb-4"></div>
+      <h2 class="section-title text-white" style="font-size:clamp(2.5rem,6vw,5rem)">PRICING PLANS</h2>
+      <p class="text-gray-500 mt-4 font-dm">Flexible plans for every creator and brand</p>
+    </div>
+
+    <!-- Toggle India / Outside India -->
+    <div class="flex justify-center mb-12" data-aos="fade-up">
+      <div class="flex p-1 rounded-full" style="background:#111;border:1px solid #1f1f1f">
+        <button onclick="setPricing('india')" id="btn-india" class="price-toggle px-6 py-2 rounded-full text-sm font-syne font-semibold transition-all" style="background:#FF6B1A;color:#000">India 🇮🇳</button>
+        <button onclick="setPricing('world')" id="btn-world" class="price-toggle px-6 py-2 rounded-full text-sm font-syne font-semibold transition-all text-gray-400">Outside India 🌍</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Short Form -->
+      <div class="card-hover p-8 rounded-2xl border" style="background:#111;border-color:#1f1f1f" data-aos="fade-up">
+        <div class="tag px-3 py-1 rounded-full text-xs font-syne inline-block mb-6">SHORT FORM</div>
+        <h3 class="font-bebas text-4xl text-white mb-1">SHORT</h3>
+        <div class="font-syne font-bold text-2xl text-orange-accent mb-6 price-india price-label">₹ As per project</div>
+        <div class="font-syne font-bold text-2xl text-orange-accent mb-6 price-world price-label hidden">$ As per project</div>
+        <ul class="space-y-3 mb-8">
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>20 Videos / Month</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Scroll-Stopping Edits</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Trend-Based Cuts</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Personalized Branding</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Unlimited Revisions</li>
+        </ul>
+        <a href="#contact" class="block text-center py-3 rounded-full font-syne font-semibold text-sm border transition-all hover:border-orange-accent hover:text-orange-accent" style="border-color:#2a2a2a;color:#888">Get In Touch</a>
+      </div>
+      <!-- Long Form — Popular -->
+      <div class="card-hover popular-card p-8 rounded-2xl border relative" data-aos="fade-up" data-aos-delay="100">
+        <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs font-syne font-bold" style="background:#FF6B1A;color:#000">MOST POPULAR</div>
+        <div class="tag px-3 py-1 rounded-full text-xs font-syne inline-block mb-6">LONG FORM</div>
+        <h3 class="font-bebas text-4xl text-white mb-1">LONG</h3>
+        <div class="font-syne font-bold text-2xl text-orange-accent mb-6 price-india price-label">₹ As per project</div>
+        <div class="font-syne font-bold text-2xl text-orange-accent mb-6 price-world price-label hidden">$ As per project</div>
+        <ul class="space-y-3 mb-8">
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Story-Driven Editing</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Clean Pacing & Flow</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Personalized Branding</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Unlimited Revisions</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>24/7 Chat Support</li>
+        </ul>
+        <a href="#contact" class="block text-center py-3 rounded-full font-syne font-semibold text-sm transition-all hover:opacity-90" style="background:#FF6B1A;color:#000">Get In Touch</a>
+      </div>
+      <!-- Custom -->
+      <div class="card-hover p-8 rounded-2xl border" style="background:#111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="200">
+        <div class="tag px-3 py-1 rounded-full text-xs font-syne inline-block mb-6">CUSTOM</div>
+        <h3 class="font-bebas text-4xl text-white mb-1">CUSTOM</h3>
+        <div class="font-syne font-bold text-2xl text-orange-accent mb-6">Let's Talk</div>
+        <ul class="space-y-3 mb-8">
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Fully Customizable</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Any Format / Style</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Dedicated Editor</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Priority Delivery</li>
+          <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>VIP Support</li>
+        </ul>
+        <a href="#contact" class="block text-center py-3 rounded-full font-syne font-semibold text-sm border transition-all hover:border-orange-accent hover:text-orange-accent" style="border-color:#2a2a2a;color:#888">Get In Touch</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ─── -->
+<section id="faq" class="py-32 px-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="mb-16 text-center" data-aos="fade-up">
+      <div class="orange-line mx-auto mb-4"></div>
+      <h2 class="section-title text-white" style="font-size:clamp(2.5rem,6vw,5rem)">FAQs</h2>
+    </div>
+    <div class="space-y-3" id="faq-list">
+      <!-- Loaded dynamically -->
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTACT ─── -->
+<section id="contact" class="py-32 px-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="mb-16 text-center" data-aos="fade-up">
+      <div class="orange-line mx-auto mb-4"></div>
+      <h2 class="section-title text-white" style="font-size:clamp(2.5rem,6vw,5rem)">LET'S WORK</h2>
+      <p class="text-gray-500 mt-4 font-dm">Have a project? Drop us a message.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+      <!-- Contact Info -->
+      <div data-aos="fade-right">
+        <div class="space-y-6">
+          <a href="mailto:noieditorswork@gmail.com" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-orange-accent transition-all" style="background:rgba(255,107,26,0.1)">
+              <i data-lucide="mail" class="w-5 h-5" style="color:#FF6B1A"></i>
+            </div>
+            <div>
+              <div class="text-xs text-gray-500 font-syne uppercase tracking-wider">Email</div>
+              <div class="font-syne font-semibold text-white mt-0.5">noieditorswork@gmail.com</div>
+            </div>
+          </a>
+          <a href="https://wa.me/918849438871" target="_blank" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-orange-accent transition-all" style="background:rgba(255,107,26,0.1)">
+              <i data-lucide="message-circle" class="w-5 h-5" style="color:#FF6B1A"></i>
+            </div>
+            <div>
+              <div class="text-xs text-gray-500 font-syne uppercase tracking-wider">WhatsApp</div>
+              <div class="font-syne font-semibold text-white mt-0.5">+91 88494 38871</div>
+            </div>
+          </a>
+          <a href="https://www.instagram.com/noieditors" target="_blank" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-orange-accent transition-all" style="background:rgba(255,107,26,0.1)">
+              <i data-lucide="instagram" class="w-5 h-5" style="color:#FF6B1A"></i>
+            </div>
+            <div>
+              <div class="text-xs text-gray-500 font-syne uppercase tracking-wider">Instagram</div>
+              <div class="font-syne font-semibold text-white mt-0.5">@noieditors</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <!-- Contact Form -->
+      <div data-aos="fade-left">
+        <div class="p-8 rounded-2xl border" style="background:#111;border-color:#1f1f1f">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-syne uppercase tracking-wider text-gray-500 mb-2">Your Name</label>
+              <input id="cf-name" type="text" placeholder="John Doe" class="w-full px-4 py-3 rounded-xl text-sm font-dm text-white placeholder-gray-600 outline-none focus:border-orange-accent transition-all" style="background:#161616;border:1px solid #2a2a2a"/>
+            </div>
+            <div>
+              <label class="block text-xs font-syne uppercase tracking-wider text-gray-500 mb-2">Email</label>
+              <input id="cf-email" type="email" placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl text-sm font-dm text-white placeholder-gray-600 outline-none focus:border-orange-accent transition-all" style="background:#161616;border:1px solid #2a2a2a"/>
+            </div>
+            <div>
+              <label class="block text-xs font-syne uppercase tracking-wider text-gray-500 mb-2">Project Type</label>
+              <select id="cf-type" class="w-full px-4 py-3 rounded-xl text-sm font-dm text-white outline-none" style="background:#161616;border:1px solid #2a2a2a">
+                <option value="">Select Type</option>
+                <option>Short Form (Reels/Shorts)</option>
+                <option>Long Form (YouTube)</option>
+                <option>Motion Graphics</option>
+                <option>Promo Ad</option>
+                <option>Custom Package</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-syne uppercase tracking-wider text-gray-500 mb-2">Message</label>
+              <textarea id="cf-msg" rows="4" placeholder="Tell us about your project..." class="w-full px-4 py-3 rounded-xl text-sm font-dm text-white placeholder-gray-600 outline-none focus:border-orange-accent transition-all resize-none" style="background:#161616;border:1px solid #2a2a2a"></textarea>
+            </div>
+            <button onclick="submitForm()" class="w-full py-4 rounded-xl font-syne font-bold text-sm transition-all hover:opacity-90 hover:scale-[1.01]" style="background:#FF6B1A;color:#000">
+              Send Message →
+            </button>
+            <div id="form-msg" class="hidden text-center text-sm font-syne py-2 text-orange-accent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="border-t py-12 px-6" style="border-color:#1f1f1f;background:#080808">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="font-bebas text-2xl tracking-widest">NOI <span class="text-orange-accent">EDITORS</span></div>
+    <div class="flex gap-6">
+      <a href="#work" class="text-gray-600 hover:text-white text-sm font-syne transition-colors">Work</a>
+      <a href="#services" class="text-gray-600 hover:text-white text-sm font-syne transition-colors">Services</a>
+      <a href="#pricing" class="text-gray-600 hover:text-white text-sm font-syne transition-colors">Pricing</a>
+      <a href="login.html" class="text-gray-600 hover:text-white text-sm font-syne transition-colors">Login</a>
+    </div>
+    <div class="text-gray-600 text-xs font-dm">© 2026 noieditors.com · All rights reserved</div>
+  </div>
+</footer>
+
+<!-- ─── VIDEO MODAL ─── -->
+<div id="video-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.9);backdrop-filter:blur(10px)">
+  <div class="relative w-full max-w-4xl px-4">
+    <button onclick="closeModal()" class="absolute -top-12 right-4 text-gray-400 hover:text-white">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+    <div class="aspect-video rounded-2xl overflow-hidden">
+      <iframe id="modal-iframe" src="" allow="autoplay; fullscreen" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; cursor.style.left=mx+'px'; cursor.style.top=my+'px'; });
+function animRing(){ rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(animRing); }
+animRing();
+
+// ─── Mobile Menu
+document.getElementById('menu-btn').addEventListener('click',()=>{
+  const m = document.getElementById('mobile-menu');
+  m.classList.toggle('hidden');
+});
+
+// ─── AOS Init
+AOS.init({ duration: 700, once: true, offset: 80 });
+
+// ─── Lucide Icons
+lucide.createIcons();
+
+// ─── Default Data
+const defaultVideos = [
+  { id:'v1', title:'Tech Review | Cinematic Edit', category:'cinematic', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v2', title:'Gaming Highlights Reel', category:'gaming', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v3', title:'Short Form · Instagram Reel', category:'short', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v4', title:'Motion Graphics Promo', category:'motion', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v5', title:'YouTube Long-Form Edit', category:'cinematic', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+  { id:'v6', title:'Brand Ad · Short Form', category:'short', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
+];
+
+const defaultTestimonials = [
+  { name:'Technical Sagar', sub:'3.14M Subscribers', text:"Been working with Noi Editors for over 6 months. Clean edits, fast delivery, and a smooth workflow. Highly recommend!", avatar:'TS' },
+  { name:'I Love Jamnagar', sub:'429K Followers', text:'Really good experience working with Noi Editors. Everything was smooth and the output quality was solid.', avatar:'IJ' },
+  { name:'Cyber Sagar', sub:'64.1K Subscribers', text:'Communication was smooth, edits were clean, and delivery was always on time. No complications at all.', avatar:'CS' },
+];
+
+const defaultFAQs = [
+  { q:'What is your editing process?', a:'We receive your raw footage, understand your vision, edit with precision, and deliver within the agreed timeline. We keep you updated at every step.' },
+  { q:'How can I send you the footage?', a:'You can share footage via Google Drive, WeTransfer, or any cloud storage. We\'ll send you a link once the project is confirmed.' },
+  { q:'What if I\'m not satisfied with the edit?', a:'We offer unlimited revisions until you\'re 100% happy. Your satisfaction is our priority.' },
+  { q:'Can you deliver within 24 hours?', a:'Yes! For urgent projects we offer 24H express delivery. Contact us to confirm availability.' },
+  { q:'How do I get started?', a:'Simply click "Get In Touch", describe your project, and we\'ll get back to you within a few hours.' },
+  { q:'What payment methods do you accept?', a:'We accept UPI, Bank Transfer (India), and PayPal / Wise (International clients).' },
+];
+
+function getVideos() {
+  try { return JSON.parse(localStorage.getItem('noi_videos')) || defaultVideos; } catch{ return defaultVideos; }
+}
+function getTestimonials() {
+  try { return JSON.parse(localStorage.getItem('noi_testimonials')) || defaultTestimonials; } catch{ return defaultTestimonials; }
+}
+
+// ─── Render Work Grid
+let activeFilter = 'all';
+function renderWork(filter='all') {
+  activeFilter = filter;
+  const videos = getVideos().filter(v => filter==='all' || v.category===filter);
+  const grid = document.getElementById('work-grid');
+  grid.innerHTML = videos.map(v=>`
+    <div class="video-thumb card-hover cursor-pointer" onclick="openModal('${v.yt}')" data-aos="fade-up">
+      <img src="${v.thumb}" alt="${v.title}" class="w-full aspect-video object-cover"/>
+      <div class="absolute bottom-0 left-0 right-0 p-4" style="background:linear-gradient(transparent,rgba(0,0,0,0.8))">
+        <div class="tag px-2 py-0.5 rounded text-xs font-syne inline-block mb-1">${v.category}</div>
+        <div class="font-syne font-semibold text-white text-sm">${v.title}</div>
+      </div>
+    </div>`).join('');
+  lucide.createIcons();
+  AOS.refresh();
+}
+
+function filterWork(f, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>{
+    b.style.background=''; b.style.color='#999';
+  });
+  if(btn){ btn.style.background='#FF6B1A'; btn.style.color='#000'; }
+  renderWork(f);
+}
+
+// ─── Modal
+function openModal(ytId) {
+  document.getElementById('modal-iframe').src=`https://www.youtube.com/embed/${ytId}?autoplay=1`;
+  document.getElementById('video-modal').classList.remove('hidden');
+}
+function closeModal() {
+  document.getElementById('video-modal').classList.add('hidden');
+  document.getElementById('modal-iframe').src='';
+}
+document.getElementById('video-modal').addEventListener('click',function(e){ if(e.target===this)closeModal(); });
+
+// ─── Render Testimonials
+function renderTestimonials() {
+  const list = getTestimonials();
+  document.getElementById('testimonials-grid').innerHTML = list.map((t,i)=>`
+    <div class="card-hover p-8 rounded-2xl border" style="background:#111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="${i*80}">
+      <div class="flex gap-1 mb-4">${'★'.repeat(5).split('').map(s=>`<span style="color:#FF6B1A">${s}</span>`).join('')}</div>
+      <p class="text-gray-400 font-dm text-sm leading-relaxed mb-6">"${t.text}"</p>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bebas text-sm shrink-0" style="background:rgba(255,107,26,0.15);color:#FF6B1A">${t.avatar}</div>
+        <div>
+          <div class="font-syne font-bold text-white text-sm">${t.name}</div>
+          <div class="text-gray-600 text-xs font-dm">${t.sub}</div>
+        </div>
+      </div>
+    </div>`).join('');
+  AOS.refresh();
+}
+
+// ─── Render FAQ
+function renderFAQ() {
+  document.getElementById('faq-list').innerHTML = defaultFAQs.map((f,i)=>`
+    <div class="rounded-2xl border overflow-hidden" style="background:#111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="${i*50}">
+      <button onclick="toggleFAQ(${i})" class="w-full flex items-center justify-between p-6 text-left">
+        <span class="font-syne font-semibold text-white text-sm">${f.q}</span>
+        <i data-lucide="chevron-down" class="w-4 h-4 shrink-0 transition-transform faq-icon-${i}" style="color:#FF6B1A"></i>
+      </button>
+      <div class="faq-content" id="faq-${i}">
+        <p class="px-6 pb-6 text-gray-500 text-sm font-dm leading-relaxed">${f.a}</p>
+      </div>
+    </div>`).join('');
+  lucide.createIcons();
+  AOS.refresh();
+}
+function toggleFAQ(i) {
+  const el = document.getElementById('faq-'+i);
+  el.classList.toggle('open');
+  const icon = document.querySelector('.faq-icon-'+i);
+  icon.style.transform = el.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+// ─── Pricing Toggle
+function setPricing(type) {
+  document.querySelectorAll('.price-india').forEach(el=>el.classList.toggle('hidden', type!=='india'));
+  document.querySelectorAll('.price-world').forEach(el=>el.classList.toggle('hidden', type!=='world'));
+  document.getElementById('btn-india').style.background = type==='india'?'#FF6B1A':'';
+  document.getElementById('btn-india').style.color = type==='india'?'#000':'#999';
+  document.getElementById('btn-world').style.background = type==='world'?'#FF6B1A':'';
+  document.getElementById('btn-world').style.color = type==='world'?'#000':'#999';
+}
+
+// ─── Contact Form
+function submitForm() {
+  const n=document.getElementById('cf-name').value;
+  const e=document.getElementById('cf-email').value;
+  const msg=document.getElementById('cf-msg').value;
+  const msgEl=document.getElementById('form-msg');
+  if(!n||!e||!msg){ msgEl.textContent='Please fill all fields.'; msgEl.classList.remove('hidden'); return; }
+  msgEl.textContent='✓ Message sent! We\'ll get back to you soon.'; msgEl.classList.remove('hidden');
+  document.getElementById('cf-name').value='';
+  document.getElementById('cf-email').value='';
+  document.getElementById('cf-msg').value='';
+}
+
+// ─── Init
+renderWork();
+renderTestimonials();
+renderFAQ();
+lucide.createIcons();
+</script>
+</body>
+</html>
