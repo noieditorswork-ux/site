@@ -25,7 +25,6 @@ tailwind.config={theme:{extend:{fontFamily:{bebas:['Bebas Neue','cursive'],syne:
 </head>
 <body>
 <script>
-  // Auth guard
   if(localStorage.getItem('noi_role')!=='admin'){ window.location.href='login.html'; }
 </script>
 
@@ -51,6 +50,9 @@ tailwind.config={theme:{extend:{fontFamily:{bebas:['Bebas Neue','cursive'],syne:
       </button>
       <button onclick="showTab('projects')" class="sidebar-link w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-syne font-semibold border-l-2" style="border-left-color:transparent;color:#888">
         <i data-lucide="folder-open" class="w-4 h-4"></i> Projects
+      </button>
+      <button onclick="showTab('logo')" class="sidebar-link w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-syne font-semibold border-l-2" style="border-left-color:transparent;color:#888">
+        <i data-lucide="image" class="w-4 h-4"></i> Site Logo
       </button>
     </nav>
     <div class="p-4 border-t" style="border-color:#1a1a1a">
@@ -99,6 +101,7 @@ tailwind.config={theme:{extend:{fontFamily:{bebas:['Bebas Neue','cursive'],syne:
             <button onclick="showTab('videos')" class="px-5 py-2.5 rounded-xl text-sm font-syne font-semibold transition-all hover:opacity-90" style="background:#FF6B1A;color:#000">+ Add Video</button>
             <button onclick="showTab('clients')" class="px-5 py-2.5 rounded-xl text-sm font-syne font-semibold border transition-all hover:border-orange-400" style="border-color:#2a2a2a;color:#888">+ Add Client</button>
             <button onclick="showTab('projects')" class="px-5 py-2.5 rounded-xl text-sm font-syne font-semibold border transition-all hover:border-orange-400" style="border-color:#2a2a2a;color:#888">+ Add Project</button>
+            <button onclick="showTab('logo')" class="px-5 py-2.5 rounded-xl text-sm font-syne font-semibold border transition-all hover:border-orange-400" style="border-color:#2a2a2a;color:#888">🖼 Update Logo</button>
             <a href="index.html" target="_blank" class="px-5 py-2.5 rounded-xl text-sm font-syne font-semibold border transition-all hover:border-orange-400 inline-flex items-center gap-2" style="border-color:#2a2a2a;color:#888">
               <i data-lucide="external-link" class="w-3.5 h-3.5"></i> View Site
             </a>
@@ -111,7 +114,6 @@ tailwind.config={theme:{extend:{fontFamily:{bebas:['Bebas Neue','cursive'],syne:
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-syne font-bold text-white text-lg">Portfolio Videos</h2>
         </div>
-        <!-- Add Video Form -->
         <div class="p-6 rounded-2xl border mb-6" style="background:#111;border-color:#1f1f1f">
           <h3 class="font-syne font-semibold text-white mb-5 text-sm uppercase tracking-wider">Add New Video</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -120,6 +122,7 @@ tailwind.config={theme:{extend:{fontFamily:{bebas:['Bebas Neue','cursive'],syne:
             <div><label class="block text-xs font-syne text-gray-500 mb-2 uppercase tracking-wider">Category</label>
               <select id="v-cat">
                 <option value="short">Short Form</option>
+                <option value="long">Long Form</option>
                 <option value="cinematic">Cinematic</option>
                 <option value="gaming">Gaming</option>
                 <option value="motion">Motion</option>
@@ -129,7 +132,6 @@ tailwind.config={theme:{extend:{fontFamily:{bebas:['Bebas Neue','cursive'],syne:
           </div>
           <button onclick="addVideo()" class="mt-4 px-6 py-2.5 rounded-xl text-sm font-syne font-semibold transition-all hover:opacity-90" style="background:#FF6B1A;color:#000">Add Video</button>
         </div>
-        <!-- Video List -->
         <div id="video-list" class="space-y-3"></div>
       </div>
 
@@ -189,6 +191,41 @@ tailwind.config={theme:{extend:{fontFamily:{bebas:['Bebas Neue','cursive'],syne:
         <div id="project-list" class="space-y-3"></div>
       </div>
 
+      <!-- ─── LOGO ─── -->
+      <div id="tab-logo" class="tab-panel fade-in">
+        <h2 class="font-syne font-bold text-white text-lg mb-6">Site Logo</h2>
+        <div class="p-6 rounded-2xl border mb-6" style="background:#111;border-color:#1f1f1f">
+          <h3 class="font-syne font-semibold text-white mb-5 text-sm uppercase tracking-wider">Upload Logo</h3>
+
+          <!-- Current logo preview -->
+          <div class="mb-6">
+            <div class="text-xs font-syne text-gray-500 mb-3 uppercase tracking-wider">Current Logo</div>
+            <div id="logo-preview-wrap" class="w-20 h-20 rounded-2xl border flex items-center justify-center overflow-hidden" style="background:#161616;border-color:#2a2a2a">
+              <img id="logo-preview" src="" alt="" class="w-full h-full object-cover hidden"/>
+              <span id="logo-preview-text" class="font-bebas text-2xl tracking-widest" style="color:#FF6B1A">NE</span>
+            </div>
+          </div>
+
+          <!-- Upload from device -->
+          <div class="mb-5">
+            <label class="block text-xs font-syne text-gray-500 mb-2 uppercase tracking-wider">Upload from Device</label>
+            <input type="file" id="logo-file" accept="image/*" onchange="previewLogoFile(this)" style="background:#161616;border:1px solid #2a2a2a;color:#fff;border-radius:10px;padding:10px 14px;font-size:14px;width:100%;outline:none"/>
+          </div>
+
+          <!-- OR paste URL -->
+          <div class="mb-5">
+            <label class="block text-xs font-syne text-gray-500 mb-2 uppercase tracking-wider">Or Paste Image URL</label>
+            <input id="logo-url" type="text" placeholder="https://example.com/logo.png" oninput="previewLogoUrl(this.value)"/>
+          </div>
+
+          <div class="flex gap-3 flex-wrap">
+            <button onclick="saveLogo()" class="px-6 py-2.5 rounded-xl text-sm font-syne font-semibold transition-all hover:opacity-90" style="background:#FF6B1A;color:#000">Save Logo</button>
+            <button onclick="removeLogo()" class="px-6 py-2.5 rounded-xl text-sm font-syne font-semibold border transition-all hover:border-red-500 hover:text-red-400" style="border-color:#2a2a2a;color:#888">Remove Logo</button>
+          </div>
+          <p class="text-xs font-dm mt-4" style="color:#555">Logo appears in the navbar and footer on the main site. Recommended: square image, min 200×200px.</p>
+        </div>
+      </div>
+
     </div>
   </main>
 </div>
@@ -211,17 +248,18 @@ function showTab(name) {
   const btn = document.querySelector(`[onclick="showTab('${name}')"]`);
   if(btn){btn.style.background='rgba(255,107,26,0.1)';btn.style.color='#FF6B1A';btn.style.borderLeftColor='#FF6B1A';}
   renderAll();
+  if(name==='logo') renderLogoTab();
 }
 
 function toast(msg){ const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2500);}
 
-// ─── Default data helpers
+// ─── Default data
 const defaultVideos=[
-  {id:'v1',title:'Tech Review · Cinematic Edit',category:'cinematic',thumb:'',yt:'dQw4w9WgXcQ'},
-  {id:'v2',title:'Gaming Highlights Reel',category:'gaming',thumb:'',yt:'dQw4w9WgXcQ'},
+  {id:'v1',title:'Tech Review · Cinematic Edit',category:'long',thumb:'',yt:'dQw4w9WgXcQ'},
+  {id:'v2',title:'Gaming Highlights Reel',category:'long',thumb:'',yt:'dQw4w9WgXcQ'},
   {id:'v3',title:'Short Form · Instagram Reel',category:'short',thumb:'',yt:'dQw4w9WgXcQ'},
-  {id:'v4',title:'Motion Graphics Promo',category:'motion',thumb:'',yt:'dQw4w9WgXcQ'},
-  {id:'v5',title:'YouTube Long-Form Edit',category:'cinematic',thumb:'',yt:'dQw4w9WgXcQ'},
+  {id:'v4',title:'Motion Graphics Promo',category:'long',thumb:'',yt:'dQw4w9WgXcQ'},
+  {id:'v5',title:'YouTube Long-Form Edit',category:'long',thumb:'',yt:'dQw4w9WgXcQ'},
   {id:'v6',title:'Brand Ad · Short Form',category:'short',thumb:'',yt:'dQw4w9WgXcQ'},
 ];
 const defaultTestimonials=[
@@ -238,8 +276,64 @@ function getClients(){try{return JSON.parse(localStorage.getItem('noi_clients'))
 function saveClients(v){localStorage.setItem('noi_clients',JSON.stringify(v));}
 function getProjects(){try{return JSON.parse(localStorage.getItem('noi_projects'))||[];}catch{return[];}}
 function saveProjects(v){localStorage.setItem('noi_projects',JSON.stringify(v));}
-
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+
+// ─── Logo tab
+let _pendingLogoData = '';
+
+function renderLogoTab(){
+  const saved = localStorage.getItem('noi_logo');
+  const img = document.getElementById('logo-preview');
+  const txt = document.getElementById('logo-preview-text');
+  if(saved){ img.src=saved; img.classList.remove('hidden'); txt.classList.add('hidden'); }
+  else { img.classList.add('hidden'); txt.classList.remove('hidden'); }
+  _pendingLogoData = saved||'';
+  document.getElementById('logo-url').value='';
+}
+
+function previewLogoFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    _pendingLogoData = e.target.result;
+    const img = document.getElementById('logo-preview');
+    const txt = document.getElementById('logo-preview-text');
+    img.src = _pendingLogoData;
+    img.classList.remove('hidden');
+    txt.classList.add('hidden');
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewLogoUrl(url){
+  if(!url) return;
+  _pendingLogoData = url;
+  const img = document.getElementById('logo-preview');
+  const txt = document.getElementById('logo-preview-text');
+  img.src = url;
+  img.classList.remove('hidden');
+  txt.classList.add('hidden');
+}
+
+function saveLogo(){
+  if(!_pendingLogoData){ toast('No logo selected'); return; }
+  localStorage.setItem('noi_logo', _pendingLogoData);
+  toast('✓ Logo saved — visible on site');
+}
+
+function removeLogo(){
+  localStorage.removeItem('noi_logo');
+  _pendingLogoData='';
+  const img = document.getElementById('logo-preview');
+  const txt = document.getElementById('logo-preview-text');
+  img.classList.add('hidden');
+  img.src='';
+  txt.classList.remove('hidden');
+  document.getElementById('logo-url').value='';
+  document.getElementById('logo-file').value='';
+  toast('Logo removed');
+}
 
 // ─── Add Video
 function addVideo(){
@@ -254,9 +348,7 @@ function addVideo(){
   document.getElementById('v-title').value='';document.getElementById('v-yt').value='';document.getElementById('v-thumb').value='';
   renderVideos();toast('✓ Video added');
 }
-
 function deleteVideo(id){const v=getVideos().filter(x=>x.id!==id);saveVideos(v);renderVideos();toast('Video removed');}
-
 function renderVideos(){
   const list=getVideos();
   document.getElementById('video-list').innerHTML=list.length?list.map(v=>`
@@ -271,7 +363,7 @@ function renderVideos(){
   lucide.createIcons();
 }
 
-// ─── Add Testimonial
+// ─── Testimonials
 function addTestimonial(){
   const name=document.getElementById('t-name').value.trim();
   const sub=document.getElementById('t-sub').value.trim();
@@ -298,7 +390,7 @@ function renderTestimonialsList(){
   lucide.createIcons();
 }
 
-// ─── Add Client
+// ─── Clients
 function addClient(){
   const name=document.getElementById('c-name').value.trim();
   const username=document.getElementById('c-user').value.trim();
@@ -326,7 +418,7 @@ function renderClientList(){
   lucide.createIcons();
 }
 
-// ─── Add Project
+// ─── Projects
 function addProject(){
   const title=document.getElementById('p-title').value.trim();
   const clientId=document.getElementById('p-client').value;
@@ -346,7 +438,6 @@ function updateStatus(id,status){
   if(idx>-1){p[idx].status=status;saveProjects(p);}toast('Status updated');
 }
 const statusColors={pending:'#888','in-progress':'#FF6B1A',review:'#F5A623',done:'#4CAF50'};
-const statusLabels={pending:'Pending','in-progress':'In Progress',review:'In Review',done:'Delivered'};
 function renderProjectList(){
   const projects=getProjects();
   const clients=getClients();
@@ -375,13 +466,11 @@ function renderProjectList(){
 }
 
 function renderAll(){
-  // Update stats
   document.getElementById('stat-videos').textContent=getVideos().length;
   document.getElementById('stat-testimonials').textContent=getTestimonials().length;
   document.getElementById('stat-clients').textContent=getClients().length;
   document.getElementById('stat-projects').textContent=getProjects().length;
   renderVideos();renderTestimonialsList();renderClientList();renderProjectList();
-  // Populate client select in projects
   const sel=document.getElementById('p-client');
   const clients=getClients();
   sel.innerHTML='<option value="">Select client</option>'+clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
@@ -390,7 +479,6 @@ function renderAll(){
 
 function logout(){localStorage.removeItem('noi_role');localStorage.removeItem('noi_user');window.location.href='login.html';}
 
-// Init
 renderAll();
 </script>
 </body>

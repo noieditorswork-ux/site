@@ -95,6 +95,10 @@
   /* Tag pill */
   .tag { background:rgba(255,107,26,0.1); border:1px solid rgba(255,107,26,0.2); color:#FF6B1A; }
   @media (max-width:768px){ nav { padding-top:10px !important; } }
+
+  /* ── FIX: hero overflow on mobile ── */
+  .hero-section { overflow-x: hidden; }
+  .hero-section .hero-deco { pointer-events:none; }
 </style>
 </head>
 <body>
@@ -108,8 +112,11 @@
 
   <!-- Desktop: Pill Nav -->
   <div class="hidden md:flex items-center justify-between px-3 py-2 rounded-full mx-auto max-w-2xl" style="background:rgba(15,15,15,0.92);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 40px rgba(0,0,0,0.6)">
-    <!-- Logo circle -->
-    <a href="#" class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bebas text-xs tracking-wider leading-none" style="background:#1c1c1c;border:1.5px solid rgba(255,255,255,0.12);color:#fff;letter-spacing:0">ne</a>
+    <!-- Logo -->
+    <a href="#" id="nav-logo-link" class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bebas text-xs tracking-wider leading-none overflow-hidden" style="background:#1c1c1c;border:1.5px solid rgba(255,255,255,0.12);color:#fff;letter-spacing:0">
+      <img id="nav-logo-img" src="" alt="" class="w-full h-full object-cover hidden"/>
+      <span id="nav-logo-text">ne</span>
+    </a>
     <!-- Links -->
     <div class="flex items-center gap-5">
       <a href="#work" class="text-sm font-syne text-gray-400 hover:text-white transition-colors">Work</a>
@@ -126,7 +133,10 @@
 
   <!-- Mobile: Bar -->
   <div class="flex md:hidden items-center justify-between px-4 py-3 rounded-2xl" style="background:rgba(13,13,13,0.96);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.07)">
-    <a href="#" class="font-bebas text-lg tracking-widest text-white">NOI <span style="color:#FF6B1A">EDITORS</span></a>
+    <a href="#" class="flex items-center gap-2">
+      <img id="mobile-logo-img" src="" alt="" class="w-8 h-8 rounded-full object-cover hidden"/>
+      <span id="mobile-logo-text" class="font-bebas text-lg tracking-widest text-white">NOI <span style="color:#FF6B1A">EDITORS</span></span>
+    </a>
     <button id="menu-btn" class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(255,107,26,0.12);color:#FF6B1A">
       <i data-lucide="menu" class="w-5 h-5"></i>
     </button>
@@ -149,18 +159,18 @@
 </nav>
 
 <!-- ─── HERO ─── -->
-<section class="hero-gradient min-h-screen flex flex-col items-center justify-center text-center px-6 pt-36 md:pt-32 relative overflow-hidden">
-  <!-- Decorative circles -->
-  <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-5" style="background:radial-gradient(circle,#FF6B1A,transparent);filter:blur(60px)"></div>
-  <div class="absolute bottom-1/3 right-1/4 w-64 h-64 rounded-full opacity-5" style="background:radial-gradient(circle,#FF6B1A,transparent);filter:blur(40px)"></div>
+<section class="hero-gradient hero-section min-h-screen flex flex-col items-center justify-center text-center px-6 pt-36 md:pt-32 relative">
+  <!-- Decorative circles — clipped inside section -->
+  <div class="hero-deco absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-5" style="background:radial-gradient(circle,#FF6B1A,transparent);filter:blur(60px)"></div>
+  <div class="hero-deco absolute bottom-1/3 right-1/4 w-64 h-64 rounded-full opacity-5" style="background:radial-gradient(circle,#FF6B1A,transparent);filter:blur(40px)"></div>
 
   <div class="float inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 tag text-xs font-syne font-semibold tracking-wider uppercase" data-aos="fade-down">
     <span class="w-2 h-2 rounded-full bg-orange-accent animate-pulse inline-block"></span>
     Available for New Projects
   </div>
 
-  <h1 class="section-title text-glow leading-none mb-6" style="font-size:clamp(4rem,14vw,11rem)" data-aos="fade-up">
-    RAW TO<br/><span class="text-orange-accent">ROYALTY</span>
+  <h1 class="section-title text-glow leading-none mb-6 w-full" style="font-size:clamp(3.2rem,12vw,11rem)" data-aos="fade-up">
+    RAW TO<br/><span style="color:#FF6B1A">ROYALTY</span>
   </h1>
 
   <p class="max-w-xl mx-auto text-gray-400 text-lg font-dm mb-10 leading-relaxed" data-aos="fade-up" data-aos-delay="100">
@@ -180,19 +190,19 @@
   <!-- Stats -->
   <div class="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl w-full" data-aos="fade-up" data-aos-delay="300">
     <div class="text-center">
-      <div class="font-bebas text-5xl text-orange-accent">200+</div>
+      <div class="font-bebas text-5xl" style="color:#FF6B1A">200+</div>
       <div class="text-xs text-gray-500 font-syne uppercase tracking-wider mt-1">Videos Edited</div>
     </div>
     <div class="text-center">
-      <div class="font-bebas text-5xl text-orange-accent">50+</div>
+      <div class="font-bebas text-5xl" style="color:#FF6B1A">50+</div>
       <div class="text-xs text-gray-500 font-syne uppercase tracking-wider mt-1">Happy Clients</div>
     </div>
     <div class="text-center">
-      <div class="font-bebas text-5xl text-orange-accent">3+</div>
+      <div class="font-bebas text-5xl" style="color:#FF6B1A">3+</div>
       <div class="text-xs text-gray-500 font-syne uppercase tracking-wider mt-1">Years Exp</div>
     </div>
     <div class="text-center">
-      <div class="font-bebas text-5xl text-orange-accent">24H</div>
+      <div class="font-bebas text-5xl" style="color:#FF6B1A">24H</div>
       <div class="text-xs text-gray-500 font-syne uppercase tracking-wider mt-1">Fast Delivery</div>
     </div>
   </div>
@@ -202,22 +212,22 @@
 <div class="py-5 border-y overflow-hidden" style="border-color:rgba(255,107,26,0.15);background:rgba(255,107,26,0.03)">
   <div class="marquee-track">
     <span class="inline-flex items-center gap-6 pr-8 font-bebas text-xl tracking-widest text-gray-600" style="white-space:nowrap">
-      <span>VIDEO EDITING</span><span class="text-orange-accent">✦</span>
-      <span>MOTION GRAPHICS</span><span class="text-orange-accent">✦</span>
-      <span>SHORT FORM</span><span class="text-orange-accent">✦</span>
-      <span>LONG FORM</span><span class="text-orange-accent">✦</span>
-      <span>CINEMATIC</span><span class="text-orange-accent">✦</span>
-      <span>GAMING</span><span class="text-orange-accent">✦</span>
-      <span>PROMOTIONAL ADS</span><span class="text-orange-accent">✦</span>
-      <span>DOCUMENTARY</span><span class="text-orange-accent">✦</span>
-      <span>VIDEO EDITING</span><span class="text-orange-accent">✦</span>
-      <span>MOTION GRAPHICS</span><span class="text-orange-accent">✦</span>
-      <span>SHORT FORM</span><span class="text-orange-accent">✦</span>
-      <span>LONG FORM</span><span class="text-orange-accent">✦</span>
-      <span>CINEMATIC</span><span class="text-orange-accent">✦</span>
-      <span>GAMING</span><span class="text-orange-accent">✦</span>
-      <span>PROMOTIONAL ADS</span><span class="text-orange-accent">✦</span>
-      <span>DOCUMENTARY</span><span class="text-orange-accent">✦</span>
+      <span>VIDEO EDITING</span><span style="color:#FF6B1A">✦</span>
+      <span>MOTION GRAPHICS</span><span style="color:#FF6B1A">✦</span>
+      <span>SHORT FORM</span><span style="color:#FF6B1A">✦</span>
+      <span>LONG FORM</span><span style="color:#FF6B1A">✦</span>
+      <span>CINEMATIC</span><span style="color:#FF6B1A">✦</span>
+      <span>GAMING</span><span style="color:#FF6B1A">✦</span>
+      <span>PROMOTIONAL ADS</span><span style="color:#FF6B1A">✦</span>
+      <span>DOCUMENTARY</span><span style="color:#FF6B1A">✦</span>
+      <span>VIDEO EDITING</span><span style="color:#FF6B1A">✦</span>
+      <span>MOTION GRAPHICS</span><span style="color:#FF6B1A">✦</span>
+      <span>SHORT FORM</span><span style="color:#FF6B1A">✦</span>
+      <span>LONG FORM</span><span style="color:#FF6B1A">✦</span>
+      <span>CINEMATIC</span><span style="color:#FF6B1A">✦</span>
+      <span>GAMING</span><span style="color:#FF6B1A">✦</span>
+      <span>PROMOTIONAL ADS</span><span style="color:#FF6B1A">✦</span>
+      <span>DOCUMENTARY</span><span style="color:#FF6B1A">✦</span>
     </span>
   </div>
 </div>
@@ -232,31 +242,27 @@
     </div>
   </div>
 
-  <!-- Filter Tabs: Short Form & Long Form only -->
+  <!-- Filter Tabs -->
   <div class="flex gap-3 flex-wrap mb-12" data-aos="fade-up">
     <button onclick="filterWork('short',this)" id="btn-short" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all" style="background:#FF6B1A;color:#000">Short Form</button>
     <button onclick="filterWork('long',this)" id="btn-long" class="filter-btn px-5 py-2 rounded-full text-sm font-syne font-semibold transition-all border" style="border-color:rgba(255,107,26,0.3);color:#999">Long Form</button>
   </div>
 
-  <!-- Short Form: 9:16 vertical carousel with left/right nav -->
+  <!-- Short Form -->
   <div id="short-form-section">
     <div class="relative flex items-center justify-center gap-4">
-      <!-- Left Button -->
       <button id="btn-prev" onclick="slideWork(-1)" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
         <i data-lucide="chevron-left" class="w-5 h-5"></i>
       </button>
-      <!-- Visible cards -->
       <div id="short-carousel" class="flex gap-4 overflow-hidden" style="max-width:900px;width:100%"></div>
-      <!-- Right Button -->
       <button id="btn-next" onclick="slideWork(1)" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
         <i data-lucide="chevron-right" class="w-5 h-5"></i>
       </button>
     </div>
-    <!-- Dots -->
     <div id="short-dots" class="flex justify-center gap-2 mt-6"></div>
   </div>
 
-  <!-- Long Form: normal grid -->
+  <!-- Long Form -->
   <div id="long-form-section" class="hidden">
     <div id="work-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
   </div>
@@ -312,7 +318,6 @@
         </div>
       </div>
     </div>
-    <!-- Extra services row -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
       <div class="p-5 rounded-xl border flex items-center gap-3" style="background:#111;border-color:#1f1f1f" data-aos="fade-up">
         <i data-lucide="gamepad-2" class="w-5 h-5 shrink-0" style="color:#FF6B1A"></i>
@@ -341,9 +346,7 @@
       <div class="orange-line mx-auto mb-4"></div>
       <h2 class="section-title text-white" style="font-size:clamp(2.5rem,6vw,5rem)">CLIENT FEEDBACK</h2>
     </div>
-    <div id="testimonials-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- Loaded dynamically -->
-    </div>
+    <div id="testimonials-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
   </div>
 </section>
 
@@ -355,22 +358,18 @@
       <h2 class="section-title text-white" style="font-size:clamp(2.5rem,6vw,5rem)">PRICING PLANS</h2>
       <p class="text-gray-500 mt-4 font-dm">Flexible plans for every creator and brand</p>
     </div>
-
-    <!-- Toggle India / Outside India -->
     <div class="flex justify-center mb-12" data-aos="fade-up">
       <div class="flex p-1 rounded-full" style="background:#111;border:1px solid #1f1f1f">
         <button onclick="setPricing('india')" id="btn-india" class="price-toggle px-6 py-2 rounded-full text-sm font-syne font-semibold transition-all" style="background:#FF6B1A;color:#000">India 🇮🇳</button>
         <button onclick="setPricing('world')" id="btn-world" class="price-toggle px-6 py-2 rounded-full text-sm font-syne font-semibold transition-all text-gray-400">Outside India 🌍</button>
       </div>
     </div>
-
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- Short Form -->
       <div class="card-hover p-8 rounded-2xl border" style="background:#111;border-color:#1f1f1f" data-aos="fade-up">
         <div class="tag px-3 py-1 rounded-full text-xs font-syne inline-block mb-6">SHORT FORM</div>
         <h3 class="font-bebas text-4xl text-white mb-1">SHORT</h3>
-        <div class="font-syne font-bold text-2xl text-orange-accent mb-6 price-india price-label">₹ As per project</div>
-        <div class="font-syne font-bold text-2xl text-orange-accent mb-6 price-world price-label hidden">$ As per project</div>
+        <div class="font-syne font-bold text-2xl mb-6 price-india price-label" style="color:#FF6B1A">₹ As per project</div>
+        <div class="font-syne font-bold text-2xl mb-6 price-world price-label hidden" style="color:#FF6B1A">$ As per project</div>
         <ul class="space-y-3 mb-8">
           <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>20 Videos / Month</li>
           <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Scroll-Stopping Edits</li>
@@ -380,13 +379,12 @@
         </ul>
         <a href="#contact" class="block text-center py-3 rounded-full font-syne font-semibold text-sm border transition-all hover:border-orange-accent hover:text-orange-accent" style="border-color:#2a2a2a;color:#888">Get In Touch</a>
       </div>
-      <!-- Long Form — Popular -->
       <div class="card-hover popular-card p-8 rounded-2xl border relative" data-aos="fade-up" data-aos-delay="100">
         <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs font-syne font-bold" style="background:#FF6B1A;color:#000">MOST POPULAR</div>
         <div class="tag px-3 py-1 rounded-full text-xs font-syne inline-block mb-6">LONG FORM</div>
         <h3 class="font-bebas text-4xl text-white mb-1">LONG</h3>
-        <div class="font-syne font-bold text-2xl text-orange-accent mb-6 price-india price-label">₹ As per project</div>
-        <div class="font-syne font-bold text-2xl text-orange-accent mb-6 price-world price-label hidden">$ As per project</div>
+        <div class="font-syne font-bold text-2xl mb-6 price-india price-label" style="color:#FF6B1A">₹ As per project</div>
+        <div class="font-syne font-bold text-2xl mb-6 price-world price-label hidden" style="color:#FF6B1A">$ As per project</div>
         <ul class="space-y-3 mb-8">
           <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Story-Driven Editing</li>
           <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Clean Pacing & Flow</li>
@@ -396,11 +394,10 @@
         </ul>
         <a href="#contact" class="block text-center py-3 rounded-full font-syne font-semibold text-sm transition-all hover:opacity-90" style="background:#FF6B1A;color:#000">Get In Touch</a>
       </div>
-      <!-- Custom -->
       <div class="card-hover p-8 rounded-2xl border" style="background:#111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="200">
         <div class="tag px-3 py-1 rounded-full text-xs font-syne inline-block mb-6">CUSTOM</div>
         <h3 class="font-bebas text-4xl text-white mb-1">CUSTOM</h3>
-        <div class="font-syne font-bold text-2xl text-orange-accent mb-6">Let's Talk</div>
+        <div class="font-syne font-bold text-2xl mb-6" style="color:#FF6B1A">Let's Talk</div>
         <ul class="space-y-3 mb-8">
           <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Fully Customizable</li>
           <li class="flex items-center gap-3 text-sm text-gray-400 font-dm"><i data-lucide="check" class="w-4 h-4 shrink-0" style="color:#FF6B1A"></i>Any Format / Style</li>
@@ -421,9 +418,7 @@
       <div class="orange-line mx-auto mb-4"></div>
       <h2 class="section-title text-white" style="font-size:clamp(2.5rem,6vw,5rem)">FAQs</h2>
     </div>
-    <div class="space-y-3" id="faq-list">
-      <!-- Loaded dynamically -->
-    </div>
+    <div class="space-y-3" id="faq-list"></div>
   </div>
 </section>
 
@@ -436,16 +431,15 @@
       <p class="text-gray-500 mt-4 font-dm">Have a project? Drop us a message.</p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-      <!-- Contact Info -->
       <div data-aos="fade-right">
         <div class="space-y-6">
-          <a href="/cdn-cgi/l/email-protection#c0aeafa9a5a4a9b4afb2b3b7afb2ab80a7ada1a9aceea3afad" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
+          <a href="mailto:noieditors@gmail.com" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-orange-accent transition-all" style="background:rgba(255,107,26,0.1)">
               <i data-lucide="mail" class="w-5 h-5" style="color:#FF6B1A"></i>
             </div>
             <div>
               <div class="text-xs text-gray-500 font-syne uppercase tracking-wider">Email</div>
-              <div class="font-syne font-semibold text-white mt-0.5"><span class="__cf_email__" data-cfemail="4b2524222e2f223f2439383c2439200b2c262a222765282426">[email&#160;protected]</span></div>
+              <div class="font-syne font-semibold text-white mt-0.5">noieditors@gmail.com</div>
             </div>
           </a>
           <a href="https://wa.me/918849438871" target="_blank" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
@@ -468,17 +462,16 @@
           </a>
         </div>
       </div>
-      <!-- Contact Form -->
       <div data-aos="fade-left">
         <div class="p-8 rounded-2xl border" style="background:#111;border-color:#1f1f1f">
           <div class="space-y-4">
             <div>
               <label class="block text-xs font-syne uppercase tracking-wider text-gray-500 mb-2">Your Name</label>
-              <input id="cf-name" type="text" placeholder="John Doe" class="w-full px-4 py-3 rounded-xl text-sm font-dm text-white placeholder-gray-600 outline-none focus:border-orange-accent transition-all" style="background:#161616;border:1px solid #2a2a2a"/>
+              <input id="cf-name" type="text" placeholder="John Doe" class="w-full px-4 py-3 rounded-xl text-sm font-dm text-white placeholder-gray-600 outline-none transition-all" style="background:#161616;border:1px solid #2a2a2a"/>
             </div>
             <div>
               <label class="block text-xs font-syne uppercase tracking-wider text-gray-500 mb-2">Email</label>
-              <input id="cf-email" type="email" placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl text-sm font-dm text-white placeholder-gray-600 outline-none focus:border-orange-accent transition-all" style="background:#161616;border:1px solid #2a2a2a"/>
+              <input id="cf-email" type="email" placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl text-sm font-dm text-white placeholder-gray-600 outline-none transition-all" style="background:#161616;border:1px solid #2a2a2a"/>
             </div>
             <div>
               <label class="block text-xs font-syne uppercase tracking-wider text-gray-500 mb-2">Project Type</label>
@@ -493,12 +486,12 @@
             </div>
             <div>
               <label class="block text-xs font-syne uppercase tracking-wider text-gray-500 mb-2">Message</label>
-              <textarea id="cf-msg" rows="4" placeholder="Tell us about your project..." class="w-full px-4 py-3 rounded-xl text-sm font-dm text-white placeholder-gray-600 outline-none focus:border-orange-accent transition-all resize-none" style="background:#161616;border:1px solid #2a2a2a"></textarea>
+              <textarea id="cf-msg" rows="4" placeholder="Tell us about your project..." class="w-full px-4 py-3 rounded-xl text-sm font-dm text-white placeholder-gray-600 outline-none transition-all resize-none" style="background:#161616;border:1px solid #2a2a2a"></textarea>
             </div>
             <button onclick="submitForm()" class="w-full py-4 rounded-xl font-syne font-bold text-sm transition-all hover:opacity-90 hover:scale-[1.01]" style="background:#FF6B1A;color:#000">
               Send Message →
             </button>
-            <div id="form-msg" class="hidden text-center text-sm font-syne py-2 text-orange-accent"></div>
+            <div id="form-msg" class="hidden text-center text-sm font-syne py-2" style="color:#FF6B1A"></div>
           </div>
         </div>
       </div>
@@ -509,7 +502,10 @@
 <!-- ─── FOOTER ─── -->
 <footer class="border-t py-12 px-6" style="border-color:#1f1f1f;background:#080808">
   <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-    <div class="font-bebas text-2xl tracking-widest">NOI <span class="text-orange-accent">EDITORS</span></div>
+    <div class="flex items-center gap-3">
+      <img id="footer-logo-img" src="" alt="" class="w-8 h-8 rounded-full object-cover hidden"/>
+      <div class="font-bebas text-2xl tracking-widest">NOI <span style="color:#FF6B1A">EDITORS</span></div>
+    </div>
     <div class="flex gap-6">
       <a href="#work" class="text-gray-600 hover:text-white text-sm font-syne transition-colors">Work</a>
       <a href="#services" class="text-gray-600 hover:text-white text-sm font-syne transition-colors">Services</a>
@@ -532,7 +528,7 @@
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ─── Cursor
 const cursor = document.getElementById('cursor');
 const ring = document.getElementById('cursor-ring');
@@ -543,25 +539,37 @@ animRing();
 
 // ─── Mobile Menu
 document.getElementById('menu-btn').addEventListener('click',()=>{
-  const m = document.getElementById('mobile-menu');
-  m.classList.toggle('hidden');
+  document.getElementById('mobile-menu').classList.toggle('hidden');
 });
-function closeMobileMenu(){
-  document.getElementById('mobile-menu').classList.add('hidden');
-}
+function closeMobileMenu(){ document.getElementById('mobile-menu').classList.add('hidden'); }
 document.addEventListener('click',(e)=>{
   const menu=document.getElementById('mobile-menu');
   const btn=document.getElementById('menu-btn');
-  if(!menu.contains(e.target)&&!btn.contains(e.target)){
-    menu.classList.add('hidden');
-  }
+  if(!menu.contains(e.target)&&!btn.contains(e.target)) menu.classList.add('hidden');
 });
 
 // ─── AOS Init
 AOS.init({ duration: 700, once: true, offset: 80 });
-
-// ─── Lucide Icons
 lucide.createIcons();
+
+// ─── Logo from admin
+function applyLogo(){
+  const logo = localStorage.getItem('noi_logo');
+  if(!logo) return;
+  // Desktop nav
+  const img = document.getElementById('nav-logo-img');
+  const txt = document.getElementById('nav-logo-text');
+  if(img){ img.src=logo; img.classList.remove('hidden'); }
+  if(txt) txt.classList.add('hidden');
+  // Mobile nav
+  const mImg = document.getElementById('mobile-logo-img');
+  const mTxt = document.getElementById('mobile-logo-text');
+  if(mImg){ mImg.src=logo; mImg.classList.remove('hidden'); }
+  if(mTxt) mTxt.classList.add('hidden');
+  // Footer
+  const fImg = document.getElementById('footer-logo-img');
+  if(fImg){ fImg.src=logo; fImg.classList.remove('hidden'); }
+}
 
 // ─── Default Data
 const defaultVideos = [
@@ -574,58 +582,40 @@ const defaultVideos = [
   { id:'v7', title:'Reel Edit · Trending Audio', category:'short', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
   { id:'v8', title:'YouTube Documentary Edit', category:'long', thumb:'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg', yt:'dQw4w9WgXcQ' },
 ];
-
 const defaultTestimonials = [
   { name:'Technical Sagar', sub:'3.14M Subscribers', text:"Been working with Noi Editors for over 6 months. Clean edits, fast delivery, and a smooth workflow. Highly recommend!", avatar:'TS' },
   { name:'I Love Jamnagar', sub:'429K Followers', text:'Really good experience working with Noi Editors. Everything was smooth and the output quality was solid.', avatar:'IJ' },
   { name:'Cyber Sagar', sub:'64.1K Subscribers', text:'Communication was smooth, edits were clean, and delivery was always on time. No complications at all.', avatar:'CS' },
 ];
-
 const defaultFAQs = [
   { q:'What is your editing process?', a:'We receive your raw footage, understand your vision, edit with precision, and deliver within the agreed timeline. We keep you updated at every step.' },
-  { q:'How can I send you the footage?', a:'You can share footage via Google Drive, WeTransfer, or any cloud storage. We\'ll send you a link once the project is confirmed.' },
-  { q:'What if I\'m not satisfied with the edit?', a:'We offer unlimited revisions until you\'re 100% happy. Your satisfaction is our priority.' },
+  { q:'How can I send you the footage?', a:"You can share footage via Google Drive, WeTransfer, or any cloud storage. We'll send you a link once the project is confirmed." },
+  { q:"What if I'm not satisfied with the edit?", a:"We offer unlimited revisions until you're 100% happy. Your satisfaction is our priority." },
   { q:'Can you deliver within 24 hours?', a:'Yes! For urgent projects we offer 24H express delivery. Contact us to confirm availability.' },
   { q:'How do I get started?', a:'Simply click "Get In Touch", describe your project, and we\'ll get back to you within a few hours.' },
   { q:'What payment methods do you accept?', a:'We accept UPI, Bank Transfer (India), and PayPal / Wise (International clients).' },
 ];
 
-function getVideos() {
-  try { return JSON.parse(localStorage.getItem('noi_videos')) || defaultVideos; } catch{ return defaultVideos; }
-}
-function getTestimonials() {
-  try { return JSON.parse(localStorage.getItem('noi_testimonials')) || defaultTestimonials; } catch{ return defaultTestimonials; }
-}
+function getVideos(){ try{ return JSON.parse(localStorage.getItem('noi_videos'))||defaultVideos; }catch{ return defaultVideos; } }
+function getTestimonials(){ try{ return JSON.parse(localStorage.getItem('noi_testimonials'))||defaultTestimonials; }catch{ return defaultTestimonials; } }
 
-// ─── Work Section: Short Form & Long Form only
+// ─── Work Section
 let shortIndex = 0;
+function getShortVideos(){ return getVideos().filter(v=>v.category==='short'); }
+function getLongVideos(){ return getVideos().filter(v=>v.category!=='short'); }
+function getVisibleCount(){ return window.innerWidth>=768?3:1; }
 
-function getShortVideos() {
-  return getVideos().filter(v => v.category === 'short');
-}
-function getLongVideos() {
-  return getVideos().filter(v => v.category !== 'short');
-}
-
-function getVisibleCount() {
-  if(window.innerWidth >= 768) return 3;
-  return 1;
-}
-
-function renderShortCarousel() {
-  const videos = getShortVideos();
-  const count = getVisibleCount();
-  const carousel = document.getElementById('short-carousel');
-  const dots = document.getElementById('short-dots');
+function renderShortCarousel(){
+  const videos=getShortVideos();
+  const count=getVisibleCount();
+  const carousel=document.getElementById('short-carousel');
+  const dots=document.getElementById('short-dots');
   if(!carousel) return;
-
-  // Clamp index
-  const maxIndex = Math.max(0, videos.length - count);
-  if(shortIndex > maxIndex) shortIndex = maxIndex;
-  if(shortIndex < 0) shortIndex = 0;
-
-  const visible = videos.slice(shortIndex, shortIndex + count);
-  carousel.innerHTML = visible.map(v=>`
+  const maxIndex=Math.max(0,videos.length-count);
+  if(shortIndex>maxIndex) shortIndex=maxIndex;
+  if(shortIndex<0) shortIndex=0;
+  const visible=videos.slice(shortIndex,shortIndex+count);
+  carousel.innerHTML=visible.map(v=>`
     <div class="video-thumb card-hover cursor-pointer shrink-0 flex-1" onclick="openModal('${v.yt}')" style="min-width:0">
       <div style="position:relative;padding-bottom:177.78%;overflow:hidden;border-radius:12px;background:#111">
         <img src="${v.thumb}" alt="${v.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s ease"/>
@@ -636,91 +626,66 @@ function renderShortCarousel() {
         </div>
       </div>
     </div>`).join('');
-
-  // Hover overlay fix
-  carousel.querySelectorAll('.video-thumb').forEach(card => {
-    card.addEventListener('mouseenter', () => { card.querySelector('.play-overlay').style.opacity='1'; card.querySelector('img').style.transform='scale(1.05)'; });
-    card.addEventListener('mouseleave', () => { card.querySelector('.play-overlay').style.opacity='0'; card.querySelector('img').style.transform='scale(1)'; });
+  carousel.querySelectorAll('.video-thumb').forEach(card=>{
+    card.addEventListener('mouseenter',()=>{ card.querySelector('.play-overlay').style.opacity='1'; card.querySelector('img').style.transform='scale(1.05)'; });
+    card.addEventListener('mouseleave',()=>{ card.querySelector('.play-overlay').style.opacity='0'; card.querySelector('img').style.transform='scale(1)'; });
   });
-
-  // Dots
-  const totalDots = maxIndex + 1;
-  dots.innerHTML = Array.from({length: totalDots}, (_,i)=>`
+  const totalDots=maxIndex+1;
+  dots.innerHTML=Array.from({length:totalDots},(_,i)=>`
     <button onclick="shortIndex=${i};renderShortCarousel()" style="width:8px;height:8px;border-radius:50%;background:${i===shortIndex?'#FF6B1A':'rgba(255,107,26,0.25)'};border:none;cursor:pointer;transition:background .3s;padding:0"></button>
   `).join('');
-
-  // Arrows
-  const prev = document.getElementById('btn-prev');
-  const next = document.getElementById('btn-next');
-  if(prev) prev.style.opacity = shortIndex === 0 ? '0.3' : '1';
-  if(next) next.style.opacity = shortIndex >= maxIndex ? '0.3' : '1';
+  const prev=document.getElementById('btn-prev');
+  const next=document.getElementById('btn-next');
+  if(prev) prev.style.opacity=shortIndex===0?'0.3':'1';
+  if(next) next.style.opacity=shortIndex>=maxIndex?'0.3':'1';
 }
 
-function slideWork(dir) {
-  const videos = getShortVideos();
-  const count = getVisibleCount();
-  const maxIndex = Math.max(0, videos.length - count);
-  shortIndex = Math.min(maxIndex, Math.max(0, shortIndex + dir));
+function slideWork(dir){
+  const videos=getShortVideos();
+  const count=getVisibleCount();
+  const maxIndex=Math.max(0,videos.length-count);
+  shortIndex=Math.min(maxIndex,Math.max(0,shortIndex+dir));
   renderShortCarousel();
 }
 
-function renderLongGrid() {
-  const videos = getLongVideos();
-  const grid = document.getElementById('work-grid');
+function renderLongGrid(){
+  const videos=getLongVideos();
+  const grid=document.getElementById('work-grid');
   if(!grid) return;
-  grid.innerHTML = videos.length ? videos.map(v=>`
+  grid.innerHTML=videos.length?videos.map(v=>`
     <div class="video-thumb card-hover cursor-pointer" onclick="openModal('${v.yt}')" data-aos="fade-up">
       <img src="${v.thumb}" alt="${v.title}" class="w-full aspect-video object-cover"/>
-      <div class="absolute bottom-0 left-0 right-0 p-4" style="background:linear-gradient(transparent,rgba(0,0,0,0.8))">
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(transparent,rgba(0,0,0,0.8))">
         <div class="tag px-2 py-0.5 rounded text-xs font-syne inline-block mb-1">Long Form</div>
         <div class="font-syne font-semibold text-white text-sm">${v.title}</div>
       </div>
-    </div>`).join('') : '<p class="text-gray-600 font-syne col-span-3 text-center py-16">No long form videos yet.</p>';
-  lucide.createIcons();
-  AOS.refresh();
+    </div>`).join(''):'<p class="text-gray-600 font-syne col-span-3 text-center py-16">No long form videos yet.</p>';
+  lucide.createIcons(); AOS.refresh();
 }
 
-function filterWork(f, btn) {
-  document.querySelectorAll('.filter-btn').forEach(b=>{
-    b.style.background=''; b.style.color='#999'; b.style.border='1px solid rgba(255,107,26,0.3)';
-  });
+function filterWork(f,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>{ b.style.background=''; b.style.color='#999'; b.style.border='1px solid rgba(255,107,26,0.3)'; });
   if(btn){ btn.style.background='#FF6B1A'; btn.style.color='#000'; btn.style.border='none'; }
-
-  const shortSec = document.getElementById('short-form-section');
-  const longSec = document.getElementById('long-form-section');
-
-  if(f === 'short') {
-    shortSec.classList.remove('hidden');
-    longSec.classList.add('hidden');
-    shortIndex = 0;
-    renderShortCarousel();
-  } else {
-    shortSec.classList.add('hidden');
-    longSec.classList.remove('hidden');
-    renderLongGrid();
-  }
+  const shortSec=document.getElementById('short-form-section');
+  const longSec=document.getElementById('long-form-section');
+  if(f==='short'){ shortSec.classList.remove('hidden'); longSec.classList.add('hidden'); shortIndex=0; renderShortCarousel(); }
+  else { shortSec.classList.add('hidden'); longSec.classList.remove('hidden'); renderLongGrid(); }
 }
-
-// Alias for legacy renderWork calls
-function renderWork(filter='short') { filterWork(filter, document.getElementById('btn-'+filter)); }
 
 // ─── Modal
-function openModal(ytId) {
+function openModal(ytId){
   document.getElementById('modal-iframe').src=`https://www.youtube.com/embed/${ytId}?autoplay=1`;
   document.getElementById('video-modal').classList.remove('hidden');
 }
-function closeModal() {
-  document.getElementById('video-modal').classList.add('hidden');
-  document.getElementById('modal-iframe').src='';
-}
-document.getElementById('video-modal').addEventListener('click',function(e){ if(e.target===this)closeModal(); });
+function closeModal(){ document.getElementById('video-modal').classList.add('hidden'); document.getElementById('modal-iframe').src=''; }
+document.getElementById('video-modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
 
-// ─── Render Testimonials
-function renderTestimonials() {
-  const list = getTestimonials();
-  document.getElementById('testimonials-grid').innerHTML = list.map((t,i)=>`
+// ─── Testimonials
+function renderTestimonials(){
+  const list=getTestimonials();
+  document.getElementById('testimonials-grid').innerHTML=list.map((t,i)=>`
     <div class="card-hover p-8 rounded-2xl border" style="background:#111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="${i*80}">
-      <div class="flex gap-1 mb-4">${'★'.repeat(5).split('').map(s=>`<span style="color:#FF6B1A">${s}</span>`).join('')}</div>
+      <div class="flex gap-1 mb-4">${'★★★★★'.split('').map(s=>`<span style="color:#FF6B1A">${s}</span>`).join('')}</div>
       <p class="text-gray-400 font-dm text-sm leading-relaxed mb-6">"${t.text}"</p>
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-full flex items-center justify-center font-bebas text-sm shrink-0" style="background:rgba(255,107,26,0.15);color:#FF6B1A">${t.avatar}</div>
@@ -733,9 +698,9 @@ function renderTestimonials() {
   AOS.refresh();
 }
 
-// ─── Render FAQ
-function renderFAQ() {
-  document.getElementById('faq-list').innerHTML = defaultFAQs.map((f,i)=>`
+// ─── FAQ
+function renderFAQ(){
+  document.getElementById('faq-list').innerHTML=defaultFAQs.map((f,i)=>`
     <div class="rounded-2xl border overflow-hidden" style="background:#111;border-color:#1f1f1f" data-aos="fade-up" data-aos-delay="${i*50}">
       <button onclick="toggleFAQ(${i})" class="w-full flex items-center justify-between p-6 text-left">
         <span class="font-syne font-semibold text-white text-sm">${f.q}</span>
@@ -745,51 +710,47 @@ function renderFAQ() {
         <p class="px-6 pb-6 text-gray-500 text-sm font-dm leading-relaxed">${f.a}</p>
       </div>
     </div>`).join('');
-  lucide.createIcons();
-  AOS.refresh();
+  lucide.createIcons(); AOS.refresh();
 }
-function toggleFAQ(i) {
-  const el = document.getElementById('faq-'+i);
+function toggleFAQ(i){
+  const el=document.getElementById('faq-'+i);
   el.classList.toggle('open');
-  const icon = document.querySelector('.faq-icon-'+i);
-  icon.style.transform = el.classList.contains('open') ? 'rotate(180deg)' : '';
+  document.querySelector('.faq-icon-'+i).style.transform=el.classList.contains('open')?'rotate(180deg)':'';
 }
 
-// ─── Pricing Toggle
-function setPricing(type) {
-  document.querySelectorAll('.price-india').forEach(el=>el.classList.toggle('hidden', type!=='india'));
-  document.querySelectorAll('.price-world').forEach(el=>el.classList.toggle('hidden', type!=='world'));
-  document.getElementById('btn-india').style.background = type==='india'?'#FF6B1A':'';
-  document.getElementById('btn-india').style.color = type==='india'?'#000':'#999';
-  document.getElementById('btn-world').style.background = type==='world'?'#FF6B1A':'';
-  document.getElementById('btn-world').style.color = type==='world'?'#000':'#999';
+// ─── Pricing
+function setPricing(type){
+  document.querySelectorAll('.price-india').forEach(el=>el.classList.toggle('hidden',type!=='india'));
+  document.querySelectorAll('.price-world').forEach(el=>el.classList.toggle('hidden',type!=='world'));
+  document.getElementById('btn-india').style.background=type==='india'?'#FF6B1A':'';
+  document.getElementById('btn-india').style.color=type==='india'?'#000':'#999';
+  document.getElementById('btn-world').style.background=type==='world'?'#FF6B1A':'';
+  document.getElementById('btn-world').style.color=type==='world'?'#000':'#999';
 }
 
 // ─── Contact Form
-function submitForm() {
+function submitForm(){
   const n=document.getElementById('cf-name').value;
   const e=document.getElementById('cf-email').value;
   const msg=document.getElementById('cf-msg').value;
   const msgEl=document.getElementById('form-msg');
   if(!n||!e||!msg){ msgEl.textContent='Please fill all fields.'; msgEl.classList.remove('hidden'); return; }
-  msgEl.textContent='✓ Message sent! We\'ll get back to you soon.'; msgEl.classList.remove('hidden');
+  msgEl.textContent="✓ Message sent! We'll get back to you soon."; msgEl.classList.remove('hidden');
   document.getElementById('cf-name').value='';
   document.getElementById('cf-email').value='';
   document.getElementById('cf-msg').value='';
 }
 
-// ─── Init on Load
-window.addEventListener('DOMContentLoaded', () => {
+// ─── Init
+window.addEventListener('DOMContentLoaded',()=>{
+  applyLogo();
   renderShortCarousel();
   renderTestimonials();
   renderFAQ();
   lucide.createIcons();
 });
-
-window.addEventListener('resize', () => {
-  if(document.getElementById('short-form-section') && !document.getElementById('short-form-section').classList.contains('hidden')) {
-    renderShortCarousel();
-  }
+window.addEventListener('resize',()=>{
+  if(!document.getElementById('short-form-section').classList.contains('hidden')) renderShortCarousel();
 });
 </script>
 </body>
