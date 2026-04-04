@@ -51,7 +51,8 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
   ::-webkit-scrollbar-thumb { background: #FF6B1A; border-radius: 99px; }
 
   /* Marquee */
-  .marquee-track { display:flex; width:max-content; animation: marquee 25s linear infinite; }
+ .marquee-track { display:flex; width:max-content; animation: marquee 30s linear infinite; }
+.marquee-track:hover { animation-play-state: paused; }
   .marquee-track:hover { animation-play-state: paused; }
   @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
@@ -178,9 +179,8 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
     RAW TO<br/><span style="color:#FF6B1A">ROYALTY</span>
   </h1>
 
-  <p class="max-w-xl mx-auto text-gray-400 text-lg font-dm mb-10 leading-relaxed" data-aos="fade-up" data-aos-delay="100">
-    Your imagination becomes visual reality.<br/>
-    <span class="text-white">NOI EDITORS</span> crafts premium video editing, motion graphics & visual storytelling for creators and brands.
+  <p class="max-w-sm mx-auto text-gray-400 text-base font-dm mb-10 tracking-wide" data-aos="fade-up" data-aos-delay="100">
+    <span class="text-white font-semibold">NOI EDITORS</span> — We make your vision <span style="color:#FF6B1A" class="font-semibold">Legendary.</span>
   </p>
 
   <div class="flex flex-wrap gap-4 justify-center" data-aos="fade-up" data-aos-delay="200">
@@ -214,9 +214,9 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
 </section>
 
 <!-- ─── MARQUEE ─── -->
-<div class="py-5 border-y overflow-hidden" style="border-color:rgba(255,107,26,0.15);background:rgba(255,107,26,0.03)">
+<div class="py-6 overflow-hidden" style="background:linear-gradient(90deg,rgba(8,8,8,1) 0%,rgba(255,107,26,0.05) 50%,rgba(8,8,8,1) 100%);border-top:1px solid rgba(255,107,26,0.2);border-bottom:1px solid rgba(255,107,26,0.2)">
   <div class="marquee-track">
-    <span class="inline-flex items-center gap-6 pr-8 font-bebas text-xl tracking-widest text-gray-600" style="white-space:nowrap">
+    <span class="inline-flex items-center gap-10 pr-16 font-bebas text-2xl tracking-widest" style="white-space:nowrap;color:rgba(255,107,26,0.5)">
       <span>VIDEO EDITING</span><span style="color:#FF6B1A">✦</span>
       <span>MOTION GRAPHICS</span><span style="color:#FF6B1A">✦</span>
       <span>SHORT FORM</span><span style="color:#FF6B1A">✦</span>
