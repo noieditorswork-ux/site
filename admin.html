@@ -118,7 +118,6 @@ tailwind.config={theme:{extend:{fontFamily:{bebas:['Bebas Neue','cursive'],syne:
           <h3 class="font-syne font-semibold text-white mb-5 text-sm uppercase tracking-wider">Add New Video</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div><label class="block text-xs font-syne text-gray-500 mb-2 uppercase tracking-wider">Title</label><input id="v-title" type="text" placeholder="Video title"/></div>
-            <div><label class="block text-xs font-syne text-gray-500 mb-2 uppercase tracking-wider">YouTube Video ID</label><input id="v-yt" type="text" placeholder="e.g. dQw4w9WgXcQ"/></div>
             <div><label class="block text-xs font-syne text-gray-500 mb-2 uppercase tracking-wider">Category</label>
               <select id="v-cat">
                 <option value="short">Short Form</option>
@@ -128,7 +127,22 @@ tailwind.config={theme:{extend:{fontFamily:{bebas:['Bebas Neue','cursive'],syne:
                 <option value="motion">Motion</option>
               </select>
             </div>
-            <div><label class="block text-xs font-syne text-gray-500 mb-2 uppercase tracking-wider">Thumbnail URL (optional)</label><input id="v-thumb" type="text" placeholder="Leave blank = auto from YouTube"/></div>
+            <div class="md:col-span-2">
+              <label class="block text-xs font-syne text-gray-500 mb-2 uppercase tracking-wider">Video Source — Choose One</label>
+              <div class="flex gap-3 mb-3">
+                <button onclick="setVidMode('yt')" id="mode-yt" class="px-4 py-2 rounded-xl text-xs font-syne font-semibold transition-all" style="background:#FF6B1A;color:#000">YouTube ID</button>
+                <button onclick="setVidMode('mp4')" id="mode-mp4" class="px-4 py-2 rounded-xl text-xs font-syne font-semibold border transition-all" style="border-color:#2a2a2a;color:#888">Upload MP4</button>
+              </div>
+             <div id="yt-input-wrap"><input id="v-yt" type="text" placeholder="Paste full YouTube link or Video ID" oninput="extractYTId(this)"/></div>
+              <div id="mp4-input-wrap" class="hidden">
+                <input type="file" id="v-mp4file" accept="video/mp4,video/*" style="background:#161616;border:1px solid #2a2a2a;color:#fff;border-radius:10px;padding:10px 14px;font-size:14px;width:100%;" onchange="previewMP4(this)"/>
+                <div id="mp4-preview-wrap" class="hidden mt-3">
+                  <video id="mp4-preview" controls class="w-full rounded-xl" style="max-height:200px;background:#000;"></video>
+                  <div class="text-xs font-syne mt-2" style="color:#FF6B1A" id="mp4-size-label"></div>
+                </div>
+              </div>
+            </div>
+            <div class="md:col-span-2"><label class="block text-xs font-syne text-gray-500 mb-2 uppercase tracking-wider">Thumbnail URL (optional — auto from YouTube if blank)</label><input id="v-thumb" type="text" placeholder="Leave blank = auto from YouTube"/></div>
           </div>
           <button onclick="addVideo()" class="mt-4 px-6 py-2.5 rounded-xl text-sm font-syne font-semibold transition-all hover:opacity-90" style="background:#FF6B1A;color:#000">Add Video</button>
         </div>
@@ -335,17 +349,69 @@ function removeLogo(){
   toast('Logo removed');
 }
 
+// ─── Video mode toggle
+let _vidMode = 'yt';
+let _mp4Data = '';
+function setVidMode(mode){
+  _vidMode = mode;
+  document.getElementById('yt-input-wrap').classList.toggle('hidden', mode!=='yt');
+  document.getElementById('mp4-input-wrap').classList.toggle('hidden', mode!=='mp4');
+  document.getElementById('mode-yt').style.background = mode==='yt'?'#FF6B1A':'';
+  document.getElementById('mode-yt').style.color = mode==='yt'?'#000':'#888';
+  document.getElementById('mode-yt').style.border = mode==='yt'?'none':'1px solid #2a2a2a';
+  document.getElementById('mode-mp4').style.background = mode==='mp4'?'#FF6B1A':'';
+  document.getElementById('mode-mp4').style.color = mode==='mp4'?'#000':'#888';
+  document.getElementById('mode-mp4').style.border = mode==='mp4'?'none':'1px solid #2a2a2a';
+}
+function previewMP4(input){
+  const file = input.files[0];
+  if(!file) return;
+  const sizeMB = (file.size/1024/1024).toFixed(1);
+  document.getElementById('mp4-size-label').textContent = `File size: ${sizeMB} MB — Note: Large files are stored in browser memory (localStorage). For production, use a CDN.`;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    _mp4Data = e.target.result;
+    const preview = document.getElementById('mp4-preview');
+    preview.src = _mp4Data;
+    document.getElementById('mp4-preview-wrap').classList.remove('hidden');
+  };
+  reader.readAsDataURL(file);
+  toast('Reading file... please wait');
+}
+
 // ─── Add Video
+function extractYTId(input){
+  const val = input.value.trim();
+  // Extract ID from any YouTube URL format
+  const match = val.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if(match){
+    input.value = match[1];
+    input.style.borderColor = '#FF6B1A';
+  } else {
+    input.style.borderColor = '';
+  }
+}
 function addVideo(){
   const title=document.getElementById('v-title').value.trim();
-  const yt=document.getElementById('v-yt').value.trim();
   const cat=document.getElementById('v-cat').value;
   const thumb=document.getElementById('v-thumb').value.trim();
-  if(!title||!yt){toast('Fill title and YouTube ID');return;}
+  if(!title){toast('Enter a title');return;}
   const videos=getVideos();
-  videos.push({id:uid(),title,yt,category:cat,thumb:thumb||`https://img.youtube.com/vi/${yt}/maxresdefault.jpg`});
+  if(_vidMode==='yt'){
+    const yt=document.getElementById('v-yt').value.trim();
+    if(!yt){toast('Enter YouTube Video ID');return;}
+    videos.push({id:uid(),title,yt,category:cat,mp4:'',thumb:thumb||`https://img.youtube.com/vi/${yt}/maxresdefault.jpg`});
+  } else {
+    if(!_mp4Data){toast('Select an MP4 file first');return;}
+    videos.push({id:uid(),title,yt:'',category:cat,mp4:_mp4Data,thumb:thumb||''});
+    _mp4Data='';
+    document.getElementById('mp4-preview-wrap').classList.add('hidden');
+    document.getElementById('v-mp4file').value='';
+  }
   saveVideos(videos);
-  document.getElementById('v-title').value='';document.getElementById('v-yt').value='';document.getElementById('v-thumb').value='';
+  document.getElementById('v-title').value='';
+  document.getElementById('v-yt').value='';
+  document.getElementById('v-thumb').value='';
   renderVideos();toast('✓ Video added');
 }
 function deleteVideo(id){const v=getVideos().filter(x=>x.id!==id);saveVideos(v);renderVideos();toast('Video removed');}
@@ -353,10 +419,13 @@ function renderVideos(){
   const list=getVideos();
   document.getElementById('video-list').innerHTML=list.length?list.map(v=>`
     <div class="flex items-center gap-4 p-4 rounded-2xl border fade-in" style="background:#111;border-color:#1f1f1f">
-      <img src="https://img.youtube.com/vi/${v.yt}/mqdefault.jpg" class="w-24 h-14 object-cover rounded-xl shrink-0"/>
+      ${v.mp4 ? `<video src="${v.mp4}" class="w-24 h-14 object-cover rounded-xl shrink-0" muted></video>` : `<img src="https://img.youtube.com/vi/${v.yt}/mqdefault.jpg" class="w-24 h-14 object-cover rounded-xl shrink-0"/>`}
       <div class="flex-1 min-w-0">
         <div class="font-syne font-semibold text-white text-sm truncate">${v.title}</div>
-        <div class="text-xs mt-1" style="color:#FF6B1A">${v.category}</div>
+        <div class="text-xs mt-1 flex gap-2" style="color:#FF6B1A">
+          <span>${v.category}</span>
+          <span style="color:#555">${v.mp4 ? '📁 MP4' : '▶ YouTube'}</span>
+        </div>
       </div>
       <button onclick="deleteVideo('${v.id}')" class="p-2 rounded-xl transition-all hover:bg-red-900/20 hover:text-red-400 shrink-0" style="color:#555"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
     </div>`).join(''):'<div class="text-center py-12 text-gray-600 font-syne">No videos yet</div>';

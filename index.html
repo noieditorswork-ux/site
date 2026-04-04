@@ -27,6 +27,9 @@
   }
 </script>
 <style>
+html {
+  scroll-behavior: smooth;
+}
   * { box-sizing: border-box; }
   body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; overflow-x: hidden; cursor: none; }
 
@@ -44,7 +47,7 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
   /* Scrollbar */
   ::-webkit-scrollbar { width: 4px; }
 
-@media (max-width: 768px) {a
+@media (max-width: 768px) {
   ::-webkit-scrollbar { width: 0px; }
 }
   ::-webkit-scrollbar-track { background: #111; }
@@ -107,6 +110,25 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
   /* ── FIX: hero overflow on mobile ── */
   .hero-section { overflow-x: hidden; }
   .hero-section .hero-deco { pointer-events:none; }
+
+  /* ── Inline Video Player ── */
+  .vid-card { position:relative; border-radius:14px; overflow:hidden; background:#111; cursor:pointer; }
+  .vid-card video { width:100%; height:100%; object-fit:cover; display:block; }
+  .vid-card iframe { width:100%; height:100%; border:none; display:block; }
+  .vid-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; transition:opacity .3s; }
+  .vid-overlay.hidden-overlay { opacity:0; pointer-events:none; }
+  .vid-play-btn { width:56px; height:56px; border-radius:50%; background:rgba(255,107,26,0.9); display:flex; align-items:center; justify-content:center; transition:transform .2s; }
+  .vid-play-btn:hover { transform:scale(1.1); }
+  .vid-controls { position:absolute; bottom:0; left:0; right:0; padding:12px 14px; background:linear-gradient(transparent,rgba(0,0,0,0.85)); display:flex; align-items:center; justify-content:space-between; opacity:0; transition:opacity .3s; }
+  .vid-card:hover .vid-controls, .vid-card.playing .vid-controls { opacity:1; }
+  .vid-ctrl-btn { background:none; border:none; color:#fff; cursor:pointer; padding:4px; border-radius:6px; display:flex; align-items:center; gap:6px; font-family:'Syne',sans-serif; font-size:12px; }
+  .vid-ctrl-btn:hover { color:#FF6B1A; }
+  .vid-title-bar { position:absolute; bottom:40px; left:0; right:0; padding:0 14px 8px; }
+  .vid-card.playing .vid-overlay { opacity:0; pointer-events:none; }
+
+  @media (pointer: coarse), (max-width: 1024px) {
+    #cursor, #cursor-ring { display: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -256,11 +278,14 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
   <!-- Short Form -->
   <div id="short-form-section">
     <div class="relative flex items-center justify-center gap-4">
-      <button id="btn-prev" onclick="slideWork(-1)" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
+      <button id="btn-prev" onclick="slideWork(-1)" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent z-20" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
         <i data-lucide="chevron-left" class="w-5 h-5"></i>
       </button>
-      <div id="short-carousel" class="flex gap-4 overflow-hidden" style="max-width:900px;width:100%"></div>
-      <button id="btn-next" onclick="slideWork(1)" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
+      <!-- Carousel viewport -->
+      <div style="overflow:hidden;width:100%;max-width:860px;position:relative;">
+        <div id="short-carousel" style="display:flex;gap:16px;transition:transform 0.55s cubic-bezier(0.4,0,0.2,1);will-change:transform;align-items:center;"></div>
+      </div>
+      <button id="btn-next" onclick="slideWork(1)" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent z-20" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
         <i data-lucide="chevron-right" class="w-5 h-5"></i>
       </button>
     </div>
@@ -438,13 +463,13 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
       <div data-aos="fade-right">
         <div class="space-y-6">
-          <a href="mailto:noieditors@gmail.com" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
+          <a href="/cdn-cgi/l/email-protection#741a1b1d11101d001b0607341319151d185a171b19" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-orange-accent transition-all" style="background:rgba(255,107,26,0.1)">
               <i data-lucide="mail" class="w-5 h-5" style="color:#FF6B1A"></i>
             </div>
             <div>
               <div class="text-xs text-gray-500 font-syne uppercase tracking-wider">Email</div>
-              <div class="font-syne font-semibold text-white mt-0.5">noieditors@gmail.com</div>
+              <div class="font-syne font-semibold text-white mt-0.5"><span class="__cf_email__" data-cfemail="a0cecfc9c5c4c9d4cfd2d3e0c7cdc1c9cc8ec3cfcd">[email&#160;protected]</span></div>
             </div>
           </a>
           <a href="https://wa.me/918849438871" target="_blank" class="flex items-center gap-4 p-5 rounded-2xl border transition-all hover:border-orange-accent group" style="background:#111;border-color:#1f1f1f">
@@ -521,19 +546,9 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
   </div>
 </footer>
 
-<!-- ─── VIDEO MODAL ─── -->
-<div id="video-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.9);backdrop-filter:blur(10px)">
-  <div class="relative w-full max-w-4xl px-4">
-    <button onclick="closeModal()" class="absolute -top-12 right-4 text-gray-400 hover:text-white">
-      <i data-lucide="x" class="w-6 h-6"></i>
-    </button>
-    <div class="aspect-video rounded-2xl overflow-hidden">
-      <iframe id="modal-iframe" src="" allow="autoplay; fullscreen" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
-    </div>
-  </div>
-</div>
+<!-- Video modal removed — inline player used instead -->
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ─── Cursor
 if(window.matchMedia('(pointer: fine)').matches){
   const cursor = document.getElementById('cursor');
@@ -606,86 +621,356 @@ const defaultFAQs = [
 function getVideos(){ try{ return JSON.parse(localStorage.getItem('noi_videos'))||defaultVideos; }catch{ return defaultVideos; } }
 function getTestimonials(){ try{ return JSON.parse(localStorage.getItem('noi_testimonials'))||defaultTestimonials; }catch{ return defaultTestimonials; } }
 
-// ─── Work Section
+// ─── Video Player System
 let shortIndex = 0;
+let activeVideoEl = null; // currently playing <video> element
+
 function getShortVideos(){ return getVideos().filter(v=>v.category==='short'); }
 function getLongVideos(){ return getVideos().filter(v=>v.category!=='short'); }
 function getVisibleCount(){ return window.innerWidth>=768?3:1; }
 
-function renderShortCarousel(){
-  const videos=getShortVideos();
-  const count=getVisibleCount();
-  const carousel=document.getElementById('short-carousel');
-  const dots=document.getElementById('short-dots');
-  if(!carousel) return;
-  const maxIndex=Math.max(0,videos.length-count);
-  if(shortIndex>maxIndex) shortIndex=maxIndex;
-  if(shortIndex<0) shortIndex=0;
-  const visible=videos.slice(shortIndex,shortIndex+count);
-  carousel.innerHTML=visible.map(v=>`
-    <div class="video-thumb card-hover cursor-pointer shrink-0 flex-1" onclick="openModal('${v.yt}')" style="min-width:0">
-      <div style="position:relative;padding-bottom:177.78%;overflow:hidden;border-radius:12px;background:#111">
-        <img src="${v.thumb}" alt="${v.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s ease"/>
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;background:rgba(0,0,0,0.4);opacity:0;transition:.3s;color:#FF6B1A" class="play-overlay">▶</div>
-        <div style="position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(transparent,rgba(0,0,0,0.85))">
-          <div class="tag px-2 py-0.5 rounded text-xs font-syne inline-block mb-1">Short Form</div>
+// Stop all playing videos
+function stopAllVideos(){
+  document.querySelectorAll('video').forEach(v=>{
+    v.pause();
+  });
+  document.querySelectorAll('.yt-frame').forEach(f=>{
+    f.src = f.src.replace('&autoplay=1','');
+    f.style.display='none';
+    const img = f.parentElement.querySelector('.vid-thumb-img');
+    if(img) img.style.display='block';
+  });
+  document.querySelectorAll('.short-card,.vid-card').forEach(c=>c.classList.remove('playing'));
+  activeVideoEl = null;
+}
+
+// Build a video card HTML
+function buildVideoCard(v, isShort){
+  const isMP4 = v.mp4 && v.mp4.length > 0;
+  const aspect = isShort ? 'padding-bottom:177.78%' : 'padding-bottom:56.25%';
+  const tag = isShort ? 'Short Form' : 'Long Form';
+  const thumb = v.thumb || (v.yt ? `https://img.youtube.com/vi/${v.yt}/maxresdefault.jpg` : '');
+
+  if(isMP4){
+    return `
+    <div class="vid-card card-hover shrink-0 flex-1" style="min-width:0;position:relative;">
+      <div style="position:relative;${aspect};overflow:hidden;border-radius:14px;">
+        <video class="vid-video" src="${v.mp4}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" muted playsinline preload="none" poster="${thumb}"></video>
+        <div class="vid-overlay" onclick="toggleVideoPlay(this)">
+          <div class="vid-play-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+          </div>
+        </div>
+        <div class="vid-controls">
+          <button class="vid-ctrl-btn" onclick="togglePlayBtn(this)" title="Play/Pause">
+            <svg class="pp-icon" width="16" height="16" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
+          <button class="vid-ctrl-btn" onclick="toggleMuteBtn(this)" title="Mute/Unmute">
+            <svg class="mute-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+        </div>
+        <div class="vid-title-bar">
+          <span class="tag px-2 py-0.5 rounded text-xs font-syne inline-block mb-1">${tag}</span>
           <div class="font-syne font-semibold text-white text-sm">${v.title}</div>
         </div>
       </div>
-    </div>`).join('');
-  carousel.querySelectorAll('.video-thumb').forEach(card=>{
-    card.addEventListener('mouseenter',()=>{ card.querySelector('.play-overlay').style.opacity='1'; card.querySelector('img').style.transform='scale(1.05)'; });
-    card.addEventListener('mouseleave',()=>{ card.querySelector('.play-overlay').style.opacity='0'; card.querySelector('img').style.transform='scale(1)'; });
+    </div>`;
+  } else {
+    const ytId = v.yt || '';
+    return `
+    <div class="vid-card card-hover shrink-0 flex-1" style="min-width:0;position:relative;">
+      <div style="position:relative;${aspect};overflow:hidden;border-radius:14px;background:#111;">
+        <img src="${thumb}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .3s" class="vid-thumb-img"/>
+        <iframe class="yt-frame" style="position:absolute;inset:0;width:100%;height:100%;display:none;" src="https://www.youtube.com/embed/${ytId}?enablejsapi=1&rel=0&modestbranding=1" allow="autoplay; fullscreen" allowfullscreen frameborder="0"></iframe>
+        <div class="vid-overlay" onclick="playYT(this,'${ytId}')">
+          <div class="vid-play-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+          </div>
+        </div>
+        <div class="vid-controls" style="opacity:0">
+          <button class="vid-ctrl-btn" onclick="toggleYTPause(this)" title="Pause">
+            <svg class="pp-icon" width="16" height="16" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
+          <button class="vid-ctrl-btn mute-yt-btn" onclick="toggleYTMute(this)" title="Mute">
+            <svg class="mute-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+        </div>
+        <div class="vid-title-bar">
+          <span class="tag px-2 py-0.5 rounded text-xs font-syne inline-block mb-1">${tag}</span>
+          <div class="font-syne font-semibold text-white text-sm">${v.title}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+}
+
+// Toggle MP4 play via overlay click
+function toggleVideoPlay(overlay){
+  const card = overlay.closest('.vid-card');
+  const video = card.querySelector('video');
+  if(!video) return;
+  if(video.paused){
+    stopAllVideos();
+    video.muted = false;
+    video.play();
+    card.classList.add('playing');
+    activeVideoEl = video;
+    overlay.classList.add('hidden-overlay');
+  } else {
+    video.pause();
+    card.classList.remove('playing');
+    overlay.classList.remove('hidden-overlay');
+  }
+}
+
+// Play/pause button inside controls
+function togglePlayBtn(btn){
+  const card = btn.closest('.vid-card');
+  const video = card.querySelector('video');
+  if(!video) return;
+  if(video.paused){ video.play(); card.classList.add('playing'); }
+  else { video.pause(); card.classList.remove('playing'); }
+}
+
+// Mute/unmute for MP4
+function toggleMuteBtn(btn){
+  const video = btn.closest('.vid-card').querySelector('video');
+  if(!video) return;
+  video.muted = !video.muted;
+  const svg = btn.querySelector('.mute-icon');
+  if(video.muted){
+    svg.innerHTML='<polygon points="11,5 6,9 2,9 2,15 6,15 11,19" fill="white"/><line x1="23" y1="9" x2="17" y2="15" stroke="white" stroke-width="2"/><line x1="17" y1="9" x2="23" y2="15" stroke="white" stroke-width="2"/>';
+  } else {
+    svg.innerHTML='<polygon points="11,5 6,9 2,9 2,15 6,15 11,19" fill="none" stroke="white" stroke-width="2"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="white" stroke-width="2" fill="none"/>';
+  }
+}
+
+// Play YouTube inline
+function playYT(overlay, ytId){
+  const card = overlay.closest('.vid-card');
+  stopAllVideos();
+  const iframe = card.querySelector('.yt-frame');
+  const thumbImg = card.querySelector('.vid-thumb-img');
+  iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&modestbranding=1`;
+  iframe.style.display='block';
+  if(thumbImg) thumbImg.style.display='none';
+  overlay.classList.add('hidden-overlay');
+  card.classList.add('playing');
+  card.querySelector('.vid-controls').style.opacity='1';
+}
+
+function toggleYTPause(btn){
+  // YouTube autoplay — clicking pause just stops showing controls (basic UX)
+  const card = btn.closest('.vid-card');
+  const iframe = card.querySelector('.yt-frame');
+  const thumb = card.querySelector('.vid-thumb-img');
+  iframe.style.display='none';
+  if(thumb) thumb.style.display='block';
+  card.classList.remove('playing');
+  btn.closest('.vid-controls').style.opacity='0';
+}
+
+function toggleYTMute(btn){ /* YT API mute would need postMessage — skip for simplicity */ }
+
+// ─── Intersection Observer: center video auto-unmute
+const ioOptions = { threshold: 0.7 };
+const vidObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    const video = entry.target.querySelector('video');
+    if(!video) return;
+    if(entry.isIntersecting && !video.paused){
+      video.muted = false;
+    } else {
+      video.muted = true;
+    }
   });
-  const totalDots=maxIndex+1;
-  dots.innerHTML=Array.from({length:totalDots},(_,i)=>`
-    <button onclick="shortIndex=${i};renderShortCarousel()" style="width:8px;height:8px;border-radius:50%;background:${i===shortIndex?'#FF6B1A':'rgba(255,107,26,0.25)'};border:none;cursor:pointer;transition:background .3s;padding:0"></button>
+}, ioOptions);
+
+function observeCards(){
+  document.querySelectorAll('.vid-card').forEach(card=>{ vidObserver.observe(card); });
+}
+
+// ─── Short Carousel — Smooth Sliding 3D Tilt
+let centerIndex = 0;
+
+function getShortVideos(){ return getVideos().filter(v=>v.category==='short'); }
+function getLongVideos(){ return getVideos().filter(v=>v.category!=='short'); }
+
+function renderShortCarousel(){
+  const videos = getShortVideos();
+  const carousel = document.getElementById('short-carousel');
+  const dots = document.getElementById('short-dots');
+  if(!carousel) return;
+  stopAllVideos();
+
+  if(centerIndex >= videos.length) centerIndex = videos.length - 1;
+  if(centerIndex < 0) centerIndex = 0;
+
+  // Render ALL cards in one track
+  carousel.innerHTML = videos.map((v, i) => buildShortCard(v, i)).join('');
+
+  // Set initial positions without animation
+  updateCarouselTransform(false);
+  updateCardStyles();
+
+  // Dots
+  dots.innerHTML = videos.map((_,i) => `
+    <button onclick="goToCenter(${i})" style="width:${i===centerIndex?'20px':'8px'};height:8px;border-radius:99px;background:${i===centerIndex?'#FF6B1A':'rgba(255,107,26,0.25)'};border:none;cursor:pointer;transition:all .35s;padding:0"></button>
   `).join('');
-  const prev=document.getElementById('btn-prev');
-  const next=document.getElementById('btn-next');
-  if(prev) prev.style.opacity=shortIndex===0?'0.3':'1';
-  if(next) next.style.opacity=shortIndex>=maxIndex?'0.3':'1';
+
+  const prev = document.getElementById('btn-prev');
+  const next = document.getElementById('btn-next');
+  if(prev) prev.style.opacity = videos.length <= 1 ? '0.3' : '1';
+  if(next) next.style.opacity = videos.length <= 1 ? '0.3' : '1';
+}
+
+function buildShortCard(v, idx){
+  const isMP4 = v.mp4 && v.mp4.length > 0;
+  const thumb = v.thumb || (v.yt ? `https://img.youtube.com/vi/${v.yt}/maxresdefault.jpg` : '');
+  const ytId = v.yt || '';
+
+  const mediaHtml = isMP4 ? `
+    <video src="${v.mp4}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" muted playsinline preload="none" poster="${thumb}"></video>
+  ` : `
+    <img src="${thumb}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" class="vid-thumb-img"/>
+    <iframe class="yt-frame" style="position:absolute;inset:0;width:100%;height:100%;display:none;" src="https://www.youtube.com/embed/${ytId}?enablejsapi=1&rel=0&modestbranding=1" allow="autoplay; fullscreen" allowfullscreen frameborder="0"></iframe>
+  `;
+
+  return `
+  <div class="short-card" data-idx="${idx}" style="
+    flex-shrink:0;width:240px;position:relative;
+    transition:transform 0.55s cubic-bezier(0.4,0,0.2,1),opacity 0.55s ease,filter 0.55s ease,box-shadow 0.55s ease;
+    cursor:pointer;border-radius:16px;
+  " onclick="handleCardClick(${idx},this,'${ytId}',${isMP4})">
+    <div style="position:relative;padding-bottom:177.78%;overflow:hidden;border-radius:16px;background:#111;">
+      ${mediaHtml}
+      <div class="vid-overlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);transition:opacity .3s;pointer-events:none;">
+        <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,107,26,0.9);display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+        </div>
+      </div>
+      <div class="vid-controls" style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(transparent,rgba(0,0,0,0.85));display:flex;align-items:center;justify-content:space-between;opacity:0;transition:opacity .3s;">
+        <button class="vid-ctrl-btn" onclick="event.stopPropagation();togglePlayBtn(this)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <button class="vid-ctrl-btn" onclick="event.stopPropagation();toggleMuteBtn(this)">
+          <svg class="mute-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="11,5 6,9 2,9 2,15 6,15 11,19"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+      </div>
+      <div style="position:absolute;bottom:48px;left:0;right:0;padding:0 14px 8px;">
+        <span class="tag px-2 py-0.5 rounded text-xs font-syne inline-block mb-1">Short Form</span>
+        <div class="font-syne font-semibold text-white text-sm">${v.title}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function updateCarouselTransform(animate){
+  const carousel = document.getElementById('short-carousel');
+  if(!carousel) return;
+  const viewport = carousel.parentElement;
+  const vpWidth = viewport.offsetWidth;
+  const cardW = 256; // 240px + 16px gap
+  const offset = (vpWidth/2) - (cardW/2) - (centerIndex * cardW);
+  carousel.style.transition = animate ? 'transform 0.55s cubic-bezier(0.4,0,0.2,1)' : 'none';
+  carousel.style.transform = `translateX(${offset}px)`;
+  if(!animate){
+    carousel.getBoundingClientRect(); // force reflow
+    carousel.style.transition = 'transform 0.55s cubic-bezier(0.4,0,0.2,1)';
+  }
+}
+
+function updateCardStyles(){
+  document.querySelectorAll('.short-card').forEach(card => {
+    const idx = parseInt(card.dataset.idx);
+    const diff = idx - centerIndex;
+    const overlay = card.querySelector('.vid-overlay');
+    const controls = card.querySelector('.vid-controls');
+
+    if(diff === 0){
+      card.style.transform = 'perspective(900px) rotateY(0deg) scale(1)';
+      card.style.opacity = '1';
+      card.style.filter = 'brightness(1)';
+      card.style.zIndex = '10';
+      card.style.boxShadow = '0 0 50px rgba(255,107,26,0.3)';
+      if(overlay) overlay.style.pointerEvents = 'none';
+      if(controls) controls.style.display = 'flex';
+    } else if(Math.abs(diff) === 1){
+      const tilt = diff > 0 ? -20 : 20;
+      card.style.transform = `perspective(900px) rotateY(${tilt}deg) scale(0.85)`;
+      card.style.opacity = '0.5';
+      card.style.filter = 'brightness(0.55)';
+      card.style.zIndex = '5';
+      card.style.boxShadow = 'none';
+      if(overlay) overlay.style.pointerEvents = 'none';
+      if(controls) controls.style.display = 'none';
+    } else {
+      const tilt = diff > 0 ? -35 : 35;
+      card.style.transform = `perspective(900px) rotateY(${tilt}deg) scale(0.7)`;
+      card.style.opacity = '0.15';
+      card.style.filter = 'brightness(0.3)';
+      card.style.zIndex = '1';
+      card.style.boxShadow = 'none';
+      if(overlay) overlay.style.pointerEvents = 'none';
+      if(controls) controls.style.display = 'none';
+    }
+  });
+}
+
+function handleCardClick(idx, cardEl, ytId, isMP4){
+  if(idx !== centerIndex){
+    goToCenter(idx);
+    return;
+  }
+  // Center card — play
+  const overlay = cardEl.querySelector('.vid-overlay');
+  if(isMP4){ toggleVideoPlay(overlay); }
+  else if(ytId){ playYT(overlay, ytId); }
+}
+
+function goToCenter(idx){
+  stopAllVideos();
+  centerIndex = idx;
+  updateCarouselTransform(true);
+  updateCardStyles();
+  document.querySelectorAll('#short-dots button').forEach((btn,i)=>{
+    btn.style.width = i===centerIndex ? '20px' : '8px';
+    btn.style.background = i===centerIndex ? '#FF6B1A' : 'rgba(255,107,26,0.25)';
+  });
 }
 
 function slideWork(dir){
-  const videos=getShortVideos();
-  const count=getVisibleCount();
-  const maxIndex=Math.max(0,videos.length-count);
-  shortIndex=Math.min(maxIndex,Math.max(0,shortIndex+dir));
-  renderShortCarousel();
+  const videos = getShortVideos();
+  if(!videos.length) return;
+  centerIndex = (centerIndex + dir + videos.length) % videos.length;
+  stopAllVideos();
+  updateCarouselTransform(true);
+  updateCardStyles();
+  document.querySelectorAll('#short-dots button').forEach((btn,i)=>{
+    btn.style.width = i===centerIndex ? '20px' : '8px';
+    btn.style.background = i===centerIndex ? '#FF6B1A' : 'rgba(255,107,26,0.25)';
+  });
 }
 
 function renderLongGrid(){
   const videos=getLongVideos();
   const grid=document.getElementById('work-grid');
   if(!grid) return;
-  grid.innerHTML=videos.length?videos.map(v=>`
-    <div class="video-thumb card-hover cursor-pointer" onclick="openModal('${v.yt}')" data-aos="fade-up">
-      <img src="${v.thumb}" alt="${v.title}" class="w-full aspect-video object-cover"/>
-      <div style="position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(transparent,rgba(0,0,0,0.8))">
-        <div class="tag px-2 py-0.5 rounded text-xs font-syne inline-block mb-1">Long Form</div>
-        <div class="font-syne font-semibold text-white text-sm">${v.title}</div>
-      </div>
-    </div>`).join(''):'<p class="text-gray-600 font-syne col-span-3 text-center py-16">No long form videos yet.</p>';
-  lucide.createIcons(); AOS.refresh();
+  stopAllVideos();
+  grid.innerHTML=videos.length?videos.map(v=>buildVideoCard(v,false)).join(''):'<p class="text-gray-600 font-syne col-span-3 text-center py-16">No long form videos yet.</p>';
+  grid.querySelectorAll('.vid-card').forEach(card=>vidObserver.observe(card));
+  AOS.refresh();
 }
 
 function filterWork(f,btn){
   document.querySelectorAll('.filter-btn').forEach(b=>{ b.style.background=''; b.style.color='#999'; b.style.border='1px solid rgba(255,107,26,0.3)'; });
   if(btn){ btn.style.background='#FF6B1A'; btn.style.color='#000'; btn.style.border='none'; }
+  stopAllVideos();
   const shortSec=document.getElementById('short-form-section');
   const longSec=document.getElementById('long-form-section');
-  if(f==='short'){ shortSec.classList.remove('hidden'); longSec.classList.add('hidden'); shortIndex=0; renderShortCarousel(); }
+  if(f==='short'){ shortSec.classList.remove('hidden'); longSec.classList.add('hidden'); centerIndex=0; renderShortCarousel(); }
   else { shortSec.classList.add('hidden'); longSec.classList.remove('hidden'); renderLongGrid(); }
 }
-
-// ─── Modal
-function openModal(ytId){
-  document.getElementById('modal-iframe').src=`https://www.youtube.com/embed/${ytId}?autoplay=1`;
-  document.getElementById('video-modal').classList.remove('hidden');
-}
-function closeModal(){ document.getElementById('video-modal').classList.add('hidden'); document.getElementById('modal-iframe').src=''; }
-document.getElementById('video-modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
 
 // ─── Testimonials
 function renderTestimonials(){
