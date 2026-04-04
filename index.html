@@ -277,16 +277,16 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
 
   <!-- Short Form -->
   <div id="short-form-section">
-    <div class="relative flex items-center justify-center gap-4">
-      <button id="btn-prev" onclick="slideWork(-1)" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent z-20" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
-        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+    <div class="relative flex items-center justify-center gap-2 md:gap-4" style="padding:0 4px;">
+      <button id="btn-prev" onclick="slideWork(-1)" class="shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent z-20" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
+        <i data-lucide="chevron-left" class="w-4 h-4 md:w-5 md:h-5"></i>
       </button>
       <!-- Carousel viewport -->
-      <div style="overflow:hidden;width:100%;max-width:860px;position:relative;">
+      <div id="short-viewport" style="overflow:hidden;width:100%;max-width:1100px;position:relative;">
         <div id="short-carousel" style="display:flex;gap:16px;transition:transform 0.55s cubic-bezier(0.4,0,0.2,1);will-change:transform;align-items:center;"></div>
       </div>
-      <button id="btn-next" onclick="slideWork(1)" class="shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent z-20" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
-        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+      <button id="btn-next" onclick="slideWork(1)" class="shrink-0 w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center border transition-all hover:border-orange-accent hover:text-orange-accent z-20" style="border-color:rgba(255,107,26,0.3);color:#999;background:#111">
+        <i data-lucide="chevron-right" class="w-4 h-4 md:w-5 md:h-5"></i>
       </button>
     </div>
     <div id="short-dots" class="flex justify-center gap-2 mt-6"></div>
@@ -806,14 +806,21 @@ function renderShortCarousel(){
   if(centerIndex >= videos.length) centerIndex = videos.length - 1;
   if(centerIndex < 0) centerIndex = 0;
 
-  // Render ALL cards in one track
-  carousel.innerHTML = videos.map((v, i) => buildShortCard(v, i)).join('');
+  // Always show at least 3 cards — pad with duplicates if needed
+  let displayVideos = [...videos];
+  while(displayVideos.length < 3 && videos.length > 0){
+    displayVideos = [...displayVideos, ...videos];
+  }
+  displayVideos = displayVideos.slice(0, Math.max(videos.length, 3));
+
+  // Render ALL cards in one track (use real index for dots/navigation, display index for rendering)
+  carousel.innerHTML = displayVideos.map((v, i) => buildShortCard(v, i % videos.length, i)).join('');
 
   // Set initial positions without animation
   updateCarouselTransform(false);
   updateCardStyles();
 
-  // Dots
+  // Dots — only for real videos
   dots.innerHTML = videos.map((_,i) => `
     <button onclick="goToCenter(${i})" style="width:${i===centerIndex?'20px':'8px'};height:8px;border-radius:99px;background:${i===centerIndex?'#FF6B1A':'rgba(255,107,26,0.25)'};border:none;cursor:pointer;transition:all .35s;padding:0"></button>
   `).join('');
@@ -824,7 +831,8 @@ function renderShortCarousel(){
   if(next) next.style.opacity = videos.length <= 1 ? '0.3' : '1';
 }
 
-function buildShortCard(v, idx){
+function buildShortCard(v, realIdx, displayIdx){
+  if(displayIdx === undefined) displayIdx = realIdx;
   const isMP4 = v.mp4 && v.mp4.length > 0;
   const thumb = v.thumb || (v.yt ? `https://img.youtube.com/vi/${v.yt}/maxresdefault.jpg` : '');
   const ytId = v.yt || '';
@@ -837,15 +845,15 @@ function buildShortCard(v, idx){
   `;
 
   return `
-  <div class="short-card" data-idx="${idx}" style="
-    flex-shrink:0;width:240px;position:relative;
+  <div class="short-card" data-idx="${displayIdx}" data-real-idx="${realIdx}" style="
+    flex-shrink:0;width:var(--sc-w,300px);position:relative;
     transition:transform 0.55s cubic-bezier(0.4,0,0.2,1),opacity 0.55s ease,filter 0.55s ease,box-shadow 0.55s ease;
     cursor:pointer;border-radius:16px;
-  " onclick="handleCardClick(${idx},this,'${ytId}',${isMP4})">
+  " onclick="handleCardClick(${displayIdx},this,'${ytId}',${isMP4})">
     <div style="position:relative;padding-bottom:177.78%;overflow:hidden;border-radius:16px;background:#111;">
       ${mediaHtml}
-      <div class="vid-overlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);transition:opacity .3s;pointer-events:none;">
-        <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,107,26,0.9);display:flex;align-items:center;justify-content:center;">
+      <div class="vid-overlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);transition:opacity .3s;pointer-events:auto;">
+        <div class="short-play-btn" style="width:52px;height:52px;border-radius:50%;background:rgba(255,107,26,0.9);display:flex;align-items:center;justify-content:center;pointer-events:none;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
         </div>
       </div>
@@ -865,13 +873,30 @@ function buildShortCard(v, idx){
   </div>`;
 }
 
+function getCardWidth(){
+  const isMobile = window.innerWidth < 768;
+  if(isMobile){
+    // On mobile: card takes 80% of viewport, centered
+    const vp = document.getElementById('short-viewport');
+    const vpW = vp ? vp.offsetWidth : window.innerWidth;
+    return Math.min(vpW * 0.82, 340);
+  }
+  return 300; // desktop card width
+}
+
 function updateCarouselTransform(animate){
   const carousel = document.getElementById('short-carousel');
   if(!carousel) return;
   const viewport = carousel.parentElement;
   const vpWidth = viewport.offsetWidth;
-  const cardW = 256; // 240px + 16px gap
-  const offset = (vpWidth/2) - (cardW/2) - (centerIndex * cardW);
+  const cardW = getCardWidth();
+  const gap = 16;
+  const totalCardW = cardW + gap;
+
+  // Set CSS variable for card width
+  document.querySelectorAll('.short-card').forEach(c => c.style.width = cardW + 'px');
+
+  const offset = (vpWidth/2) - (cardW/2) - (centerIndex * totalCardW);
   carousel.style.transition = animate ? 'transform 0.55s cubic-bezier(0.4,0,0.2,1)' : 'none';
   carousel.style.transform = `translateX(${offset}px)`;
   if(!animate){
@@ -893,7 +918,7 @@ function updateCardStyles(){
       card.style.filter = 'brightness(1)';
       card.style.zIndex = '10';
       card.style.boxShadow = '0 0 50px rgba(255,107,26,0.3)';
-      if(overlay) overlay.style.pointerEvents = 'none';
+      if(overlay) overlay.style.pointerEvents = 'auto'; // ← FIXED: allow click to play
       if(controls) controls.style.display = 'flex';
     } else if(Math.abs(diff) === 1){
       const tilt = diff > 0 ? -20 : 20;
@@ -922,15 +947,38 @@ function handleCardClick(idx, cardEl, ytId, isMP4){
     goToCenter(idx);
     return;
   }
-  // Center card — play
-  const overlay = cardEl.querySelector('.vid-overlay');
-  if(isMP4){ toggleVideoPlay(overlay); }
-  else if(ytId){ playYT(overlay, ytId); }
+  // Center card — toggle play
+  if(isMP4){
+    const video = cardEl.querySelector('video');
+    const overlay = cardEl.querySelector('.vid-overlay');
+    if(!video) return;
+    if(video.paused){
+      stopAllVideos();
+      video.muted = false;
+      video.play().catch(()=>{ video.muted=true; video.play(); });
+      cardEl.classList.add('playing');
+      activeVideoEl = video;
+      if(overlay){ overlay.style.opacity='0'; overlay.style.pointerEvents='none'; }
+      const ctrl = cardEl.querySelector('.vid-controls');
+      if(ctrl) ctrl.style.opacity='1';
+    } else {
+      video.pause();
+      cardEl.classList.remove('playing');
+      const overlay2 = cardEl.querySelector('.vid-overlay');
+      if(overlay2){ overlay2.style.opacity='1'; overlay2.style.pointerEvents='auto'; }
+    }
+  } else if(ytId){
+    const overlay = cardEl.querySelector('.vid-overlay');
+    playYT(overlay, ytId);
+  }
 }
 
 function goToCenter(idx){
   stopAllVideos();
-  centerIndex = idx;
+  // idx might be a display index — use real-idx from card if available
+  const card = document.querySelector(`.short-card[data-idx="${idx}"]`);
+  const realIdx = card ? parseInt(card.dataset.realIdx) : idx;
+  centerIndex = realIdx;
   updateCarouselTransform(true);
   updateCardStyles();
   document.querySelectorAll('#short-dots button').forEach((btn,i)=>{
@@ -951,7 +999,6 @@ function slideWork(dir){
     btn.style.background = i===centerIndex ? '#FF6B1A' : 'rgba(255,107,26,0.25)';
   });
 }
-
 function renderLongGrid(){
   const videos=getLongVideos();
   const grid=document.getElementById('work-grid');
