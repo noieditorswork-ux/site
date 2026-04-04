@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="overflow-x:hidden">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -115,7 +115,7 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
 <div id="cursor-ring"></div>
 
 <!-- ─── NAV ─── -->
-<nav class="fixed top-0 left-0 right-0 z-50 pt-4 px-4 md:px-8">
+<nav class="fixed top-0 left-0 right-0 z-50 pt-4 px-4 md:px-8" style="overflow:hidden">
 
   <!-- Desktop: Pill Nav -->
   <div class="hidden md:flex items-center justify-between px-3 py-2 rounded-full mx-auto max-w-2xl" style="background:rgba(15,15,15,0.92);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 40px rgba(0,0,0,0.6)">
@@ -139,7 +139,7 @@ body { background: #080808; color: #F0EDE8; font-family: 'DM Sans', sans-serif; 
   </div>
 
   <!-- Mobile: Bar -->
-  <div class="flex md:hidden items-center justify-between px-4 py-3 rounded-2xl" style="background:rgba(13,13,13,0.96);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.07)">
+  <div class="flex md:hidden items-center justify-between px-4 py-3 rounded-2xl" style="background:rgba(13,13,13,0.96);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.07);max-width:100%;overflow:hidden">
     <a href="#" class="flex items-center gap-2">
       <img id="mobile-logo-img" src="" alt="" class="w-8 h-8 rounded-full object-cover hidden"/>
       <span id="mobile-logo-text" class="font-bebas text-lg tracking-widest text-white">NOI <span style="color:#FF6B1A">EDITORS</span></span>
